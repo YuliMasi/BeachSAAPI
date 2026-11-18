@@ -1,7 +1,16 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\Yuliana\\Documents\\BeachSAAPI\\BeachSAAPI\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{73B77859-8B89-468C-A404-8A2C818E7587}|BeachSAAPI\\BeachSAAPI.csproj|c:\\users\\yuliana\\documents\\beachsaapi\\beachsaapi\\beachsaapi\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{73B77859-8B89-468C-A404-8A2C818E7587}|BeachSAAPI\\BeachSAAPI.csproj|solutionrelative:beachsaapi\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{73B77859-8B89-468C-A404-8A2C818E7587}|BeachSAAPI\\BeachSAAPI.csproj|c:\\users\\yuliana\\documents\\beachsaapi\\beachsaapi\\beachsaapi\\beachsaapi.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{73B77859-8B89-468C-A404-8A2C818E7587}|BeachSAAPI\\BeachSAAPI.csproj|solutionrelative:beachsaapi\\beachsaapi.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,8 +18,34 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 0,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "User.cs",
+              "DocumentMoniker": "C:\\Users\\Yuliana\\Documents\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI\\Models\\User.cs",
+              "RelativeDocumentMoniker": "BeachSAAPI\\Models\\User.cs",
+              "ToolTip": "C:\\Users\\Yuliana\\Documents\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI\\Models\\User.cs",
+              "RelativeToolTip": "BeachSAAPI\\Models\\User.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-18T18:35:47.489Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "BeachSAAPI",
+              "DocumentMoniker": "C:\\Users\\Yuliana\\Documents\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI.csproj",
+              "RelativeDocumentMoniker": "BeachSAAPI\\BeachSAAPI.csproj",
+              "ToolTip": "C:\\Users\\Yuliana\\Documents\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI.csproj",
+              "RelativeToolTip": "BeachSAAPI\\BeachSAAPI.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-11-18T18:35:25.646Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
