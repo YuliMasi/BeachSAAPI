@@ -3,12 +3,16 @@
   "WorkspaceRootPath": "C:\\ProgramacionAvanzadaAsp.Net\\proyectoAPI\\BeachSAAPI\\BeachSAAPI\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{6128030B-F20D-A251-9B2D-AB223BBD5967}|BeachSAAPI\\BeachSAAPI.csproj|c:\\programacionavanzadaasp.net\\proyectoapi\\beachsaapi\\beachsaapi\\beachsaapi\\models\\package.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6128030B-F20D-A251-9B2D-AB223BBD5967}|BeachSAAPI\\BeachSAAPI.csproj|solutionrelative:beachsaapi\\models\\package.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{6128030B-F20D-A251-9B2D-AB223BBD5967}|BeachSAAPI\\BeachSAAPI.csproj|c:\\programacionavanzadaasp.net\\proyectoapi\\beachsaapi\\beachsaapi\\beachsaapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{6128030B-F20D-A251-9B2D-AB223BBD5967}|BeachSAAPI\\BeachSAAPI.csproj|solutionrelative:beachsaapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{6128030B-F20D-A251-9B2D-AB223BBD5967}|BeachSAAPI\\BeachSAAPI.csproj|c:\\programacionavanzadaasp.net\\proyectoapi\\beachsaapi\\beachsaapi\\beachsaapi\\controllers\\packagescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6128030B-F20D-A251-9B2D-AB223BBD5967}|BeachSAAPI\\BeachSAAPI.csproj|solutionrelative:beachsaapi\\controllers\\packagescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6128030B-F20D-A251-9B2D-AB223BBD5967}|BeachSAAPI\\BeachSAAPI.csproj|c:\\programacionavanzadaasp.net\\proyectoapi\\beachsaapi\\beachsaapi\\beachsaapi\\models\\package.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6128030B-F20D-A251-9B2D-AB223BBD5967}|BeachSAAPI\\BeachSAAPI.csproj|solutionrelative:beachsaapi\\models\\package.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{6128030B-F20D-A251-9B2D-AB223BBD5967}|BeachSAAPI\\BeachSAAPI.csproj|c:\\programacionavanzadaasp.net\\proyectoapi\\beachsaapi\\beachsaapi\\beachsaapi\\services\\authorizationservices.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -25,10 +29,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{6128030B-F20D-A251-9B2D-AB223BBD5967}|BeachSAAPI\\BeachSAAPI.csproj|c:\\programacionavanzadaasp.net\\proyectoapi\\beachsaapi\\beachsaapi\\beachsaapi\\dto\\authorizationresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6128030B-F20D-A251-9B2D-AB223BBD5967}|BeachSAAPI\\BeachSAAPI.csproj|solutionrelative:beachsaapi\\dto\\authorizationresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6128030B-F20D-A251-9B2D-AB223BBD5967}|BeachSAAPI\\BeachSAAPI.csproj|c:\\programacionavanzadaasp.net\\proyectoapi\\beachsaapi\\beachsaapi\\beachsaapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{6128030B-F20D-A251-9B2D-AB223BBD5967}|BeachSAAPI\\BeachSAAPI.csproj|solutionrelative:beachsaapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{6128030B-F20D-A251-9B2D-AB223BBD5967}|BeachSAAPI\\BeachSAAPI.csproj|c:\\programacionavanzadaasp.net\\proyectoapi\\beachsaapi\\beachsaapi\\beachsaapi\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -65,7 +65,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 32,
+          "SelectedChildIndex": 26,
           "Children": [
             {
               "$type": "Bookmark",
@@ -175,20 +175,19 @@
               "RelativeDocumentMoniker": "BeachSAAPI\\Controllers\\PackagesController.cs",
               "ToolTip": "C:\\ProgramacionAvanzadaAsp.Net\\proyectoAPI\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI\\Controllers\\PackagesController.cs",
               "RelativeToolTip": "BeachSAAPI\\Controllers\\PackagesController.cs",
-              "ViewState": "AgIAAJUAAAAAAAAAAAAuwJQAAAAQAAAAAAAAAA==",
+              "ViewState": "AgIAAH4AAAAAAAAAAAAmwHIAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-11-23T00:46:58.039Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-11-23T00:46:58.039Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 0,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\ProgramacionAvanzadaAsp.Net\\proyectoAPI\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI\\appsettings.json",
               "RelativeDocumentMoniker": "BeachSAAPI\\appsettings.json",
               "ToolTip": "C:\\ProgramacionAvanzadaAsp.Net\\proyectoAPI\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI\\appsettings.json",
               "RelativeToolTip": "BeachSAAPI\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAB/AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
               "WhenOpened": "2026-11-23T00:06:27.866Z",
               "EditorCaption": ""
@@ -203,12 +202,11 @@
               "RelativeToolTip": "BeachSAAPI\\Services\\IAuthorizationServices.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-11-23T00:06:27.85Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-11-23T00:06:27.85Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "AuthorizationServices.cs",
               "DocumentMoniker": "C:\\ProgramacionAvanzadaAsp.Net\\proyectoAPI\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI\\Services\\AuthorizationServices.cs",
               "RelativeDocumentMoniker": "BeachSAAPI\\Services\\AuthorizationServices.cs",
@@ -216,12 +214,11 @@
               "RelativeToolTip": "BeachSAAPI\\Services\\AuthorizationServices.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAYAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-11-23T00:06:27.85Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-11-23T00:06:27.85Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "DbContextBeachSA.cs",
               "DocumentMoniker": "C:\\ProgramacionAvanzadaAsp.Net\\proyectoAPI\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI\\Dto\\DbContextBeachSA.cs",
               "RelativeDocumentMoniker": "BeachSAAPI\\Dto\\DbContextBeachSA.cs",
@@ -229,12 +226,11 @@
               "RelativeToolTip": "BeachSAAPI\\Dto\\DbContextBeachSA.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-11-23T00:06:27.85Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-11-23T00:06:27.85Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "AuthorizationResponse.cs",
               "DocumentMoniker": "C:\\ProgramacionAvanzadaAsp.Net\\proyectoAPI\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI\\Dto\\AuthorizationResponse.cs",
               "RelativeDocumentMoniker": "BeachSAAPI\\Dto\\AuthorizationResponse.cs",
@@ -242,12 +238,11 @@
               "RelativeToolTip": "BeachSAAPI\\Dto\\AuthorizationResponse.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-11-23T00:06:27.85Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-11-23T00:06:27.85Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "GometaResponse.cs",
               "DocumentMoniker": "C:\\ProgramacionAvanzadaAsp.Net\\proyectoAPI\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI\\Dto\\GometaResponse.cs",
               "RelativeDocumentMoniker": "BeachSAAPI\\Dto\\GometaResponse.cs",
@@ -255,12 +250,11 @@
               "RelativeToolTip": "BeachSAAPI\\Dto\\GometaResponse.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACEAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-11-23T00:06:27.85Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-11-23T00:06:27.85Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "Package.cs",
               "DocumentMoniker": "C:\\ProgramacionAvanzadaAsp.Net\\proyectoAPI\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI\\Models\\Package.cs",
               "RelativeDocumentMoniker": "BeachSAAPI\\Models\\Package.cs",
@@ -268,8 +262,7 @@
               "RelativeToolTip": "BeachSAAPI\\Models\\Package.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAHAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-11-23T00:33:24.037Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-11-23T00:33:24.037Z"
             },
             {
               "$type": "Document",
@@ -281,8 +274,7 @@
               "RelativeToolTip": "BeachSAAPI\\Services\\GometaService .cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACYAAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-11-23T00:06:27.85Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-11-23T00:06:27.85Z"
             },
             {
               "$type": "Document",
@@ -294,8 +286,7 @@
               "RelativeToolTip": "BeachSAAPI\\Services\\IGometaService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-11-23T00:06:27.85Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-11-23T00:06:27.85Z"
             },
             {
               "$type": "Document",
@@ -307,8 +298,7 @@
               "RelativeToolTip": "BeachSAAPI\\Controllers\\UsersController.cs",
               "ViewState": "AgIAACcAAAAAAAAAAAAmwC4AAAATAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-11-23T00:06:27.819Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-11-23T00:06:27.819Z"
             },
             {
               "$type": "Document",
