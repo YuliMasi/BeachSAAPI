@@ -90,3 +90,4 @@ C:\Users\Yuliana\Documents\BeachSAAPI\BeachSAAPI\BeachSAAPI\obj\Debug\net8.0\Bea
 C:\Users\Yuliana\Documents\BeachSAAPI\BeachSAAPI\BeachSAAPI\obj\Debug\net8.0\BeachSAAPI.genruntimeconfig.cache
 C:\Users\Yuliana\Documents\BeachSAAPI\BeachSAAPI\BeachSAAPI\obj\Debug\net8.0\ref\BeachSAAPI.dll
 C:\Users\Yuliana\Documents\BeachSAAPI\BeachSAAPI\BeachSAAPI\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\Yuliana\Documents\BeachSAAPI\BeachSAAPI\BeachSAAPI\bin\Debug\net8.0\Microsoft.Bcl.Cryptography.dll
