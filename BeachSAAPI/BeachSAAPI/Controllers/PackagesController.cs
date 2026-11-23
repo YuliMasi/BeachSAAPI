@@ -25,9 +25,9 @@ namespace BeachSAAPI.Controllers
 
 
         //List
-        [Authorize]
         [HttpGet]
         [Route("List")]
+        //[Authorize]
 
         public List<Package> List()
         {
@@ -38,7 +38,7 @@ namespace BeachSAAPI.Controllers
         //Post
         [HttpPost]
         [Route("Create")]
-        [Authorize]
+        //[Authorize]
 
         public async Task<string> Create(Package package)
         {
@@ -52,6 +52,31 @@ namespace BeachSAAPI.Controllers
                 }
                 else
                 {
+                    if (package.PackageType == "Todo incluido")
+                    {
+                        package.Cost = 450;
+                        package.PercentageTotalAmount = 45;
+                        package.RemainingMonthlyInstallments = 24;
+                    }
+                    else if (package.PackageType == "Alimentación")
+                    {
+                        package.Cost = 275;
+                        package.PercentageTotalAmount = 35;
+                        package.RemainingMonthlyInstallments = 18;
+
+                    }
+                    else if (package.PackageType == "Hospedaje")
+                    {
+                        package.Cost = 210;
+                        package.PercentageTotalAmount = 15;
+                        package.RemainingMonthlyInstallments = 12;
+
+                    }
+                    else
+                    {
+                        return "Error, el tipo de paquete no es válido";
+                    }
+
                     this.dbContext.Packages.Add(package);
                     
                     await this.dbContext.SaveChangesAsync();
@@ -72,7 +97,7 @@ namespace BeachSAAPI.Controllers
         //Edit
         [HttpPut]
         [Route("Update")]
-        [Authorize]
+        //[Authorize]
 
         public async Task<string> Update(Package aux)
         {
@@ -87,9 +112,25 @@ namespace BeachSAAPI.Controllers
                     if (temp != null)
                     {
                         temp.PackageType = aux.PackageType;
-                        temp.Cost = aux.Cost;
-                        temp.PercentageTotalAmount = aux.PercentageTotalAmount;
-                        temp.RemainingMonthlyInstallments = aux.RemainingMonthlyInstallments;
+
+                        if (temp.PackageType == "Todo incluido")
+                        {
+                            temp.Cost = 450;
+                            temp.PercentageTotalAmount = 45;
+                            temp.RemainingMonthlyInstallments = 24;
+                        }
+                        else if (temp.PackageType == "Alimentación")
+                        {
+                            temp.Cost = 275;
+                            temp.PercentageTotalAmount = 35;
+                            temp.RemainingMonthlyInstallments = 18;
+                        }
+                        else if (temp.PackageType == "Hospedaje")
+                        {
+                            temp.Cost = 210;
+                            temp.PercentageTotalAmount = 15;
+                            temp.RemainingMonthlyInstallments = 12;
+                        }
 
                         await this.dbContext.SaveChangesAsync();
 
@@ -97,7 +138,7 @@ namespace BeachSAAPI.Controllers
                     }
                     else
                     {
-                        msj = $"Error, no está registrado el paquete {aux.PackageType}";
+                        msj = $"Error, no está registrado el con ID {aux.ID}";
                     }
                 }
                 else
