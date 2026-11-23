@@ -13,6 +13,10 @@ namespace BeachSAAPI.Dto
 
         public DbSet<User> Users { get; set; }
         public DbSet<Package> Packages { get; set; }
-        public DbSet<Reservation> Reservations { get; set; } 
+        public DbSet<Reservation> Reservations { get; set; }
+
+        public DbSet<Invoice> Invoices { get; set; }
+
+
     }
 }

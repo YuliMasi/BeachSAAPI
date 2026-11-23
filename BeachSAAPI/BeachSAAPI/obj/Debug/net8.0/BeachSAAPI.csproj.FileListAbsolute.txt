@@ -84,10 +84,10 @@ C:\Users\Admin\source\repos\YuliMasi\BeachSAAPI\BeachSAAPI\BeachSAAPI\obj\Debug\
 C:\Users\Admin\source\repos\YuliMasi\BeachSAAPI\BeachSAAPI\BeachSAAPI\obj\Debug\net8.0\staticwebassets.development.json
 C:\Users\Admin\source\repos\YuliMasi\BeachSAAPI\BeachSAAPI\BeachSAAPI\obj\Debug\net8.0\staticwebassets.build.endpoints.json
 C:\Users\Admin\source\repos\YuliMasi\BeachSAAPI\BeachSAAPI\BeachSAAPI\obj\Debug\net8.0\swae.build.ex.cache
+C:\Users\Admin\source\repos\YuliMasi\BeachSAAPI\BeachSAAPI\BeachSAAPI\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\Admin\source\repos\YuliMasi\BeachSAAPI\BeachSAAPI\BeachSAAPI\obj\Debug\net8.0\BeachSAAPI.csproj.Up2Date
 C:\Users\Admin\source\repos\YuliMasi\BeachSAAPI\BeachSAAPI\BeachSAAPI\obj\Debug\net8.0\BeachSAAPI.dll
 C:\Users\Admin\source\repos\YuliMasi\BeachSAAPI\BeachSAAPI\BeachSAAPI\obj\Debug\net8.0\refint\BeachSAAPI.dll
 C:\Users\Admin\source\repos\YuliMasi\BeachSAAPI\BeachSAAPI\BeachSAAPI\obj\Debug\net8.0\BeachSAAPI.pdb
 C:\Users\Admin\source\repos\YuliMasi\BeachSAAPI\BeachSAAPI\BeachSAAPI\obj\Debug\net8.0\BeachSAAPI.genruntimeconfig.cache
 C:\Users\Admin\source\repos\YuliMasi\BeachSAAPI\BeachSAAPI\BeachSAAPI\obj\Debug\net8.0\ref\BeachSAAPI.dll
-C:\Users\Admin\source\repos\YuliMasi\BeachSAAPI\BeachSAAPI\BeachSAAPI\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
