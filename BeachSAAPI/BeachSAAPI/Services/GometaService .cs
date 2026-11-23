@@ -45,11 +45,27 @@ namespace BeachSAAPI.Services
         }
 
 
-        public async Task<double> ObtenerTipoCambioAsync()
+        public async Task<double?> ObtenerTipoCambioAsync()
         {
-         
-        }
+            try
+            {
+                var response = await httpClient.GetAsync("tdc/tdc.json");
 
+                if (!response.IsSuccessStatusCode)
+                    return null;
+
+                var data = await response.Content.ReadFromJsonAsync<GometaExchangeRate>();
+
+                if (data == null || data.Venta <= 0)
+                    return null;
+
+                return data.Venta;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
 
     }
 }

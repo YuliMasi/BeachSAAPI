@@ -1,5 +1,155 @@
 [
   {
+    "ContainingType": "BeachSAAPI.Controllers.PackagesController",
+    "Method": "Create",
+    "RelativePath": "api/packages/Create",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "package",
+        "Type": "BeachSAAPI.Models.Package",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.String",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "BeachSAAPI.Controllers.PackagesController",
+    "Method": "Delete",
+    "RelativePath": "api/packages/Delete",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.String",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "BeachSAAPI.Controllers.PackagesController",
+    "Method": "List",
+    "RelativePath": "api/packages/List",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[BeachSAAPI.Models.Package, BeachSAAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "BeachSAAPI.Controllers.PackagesController",
+    "Method": "SearchById",
+    "RelativePath": "api/packages/SearchById",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "BeachSAAPI.Models.Package",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "BeachSAAPI.Controllers.PackagesController",
+    "Method": "SearchDescrip",
+    "RelativePath": "api/packages/SearchDescrip",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "packageType",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[BeachSAAPI.Models.Package, BeachSAAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "BeachSAAPI.Controllers.PackagesController",
+    "Method": "Update",
+    "RelativePath": "api/packages/Update",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "aux",
+        "Type": "BeachSAAPI.Models.Package",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.String",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
     "ContainingType": "BeachSAAPI.Controllers.UsersController",
     "Method": "AuthenticationUser",
     "RelativePath": "api/users/AuthenticationUser",
@@ -255,14 +405,14 @@
   },
   {
     "ContainingType": "BeachSAAPI.Controllers.ReservationsController",
-    "Method": "SearchPaymentMethod",
-    "RelativePath": "Reservations/SearchPaymentMethod",
+    "Method": "SearchDescrip",
+    "RelativePath": "Reservations/SearchDescrip",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "paymentMethod",
+        "Name": "value",
         "Type": "System.String",
         "IsRequired": false
       }

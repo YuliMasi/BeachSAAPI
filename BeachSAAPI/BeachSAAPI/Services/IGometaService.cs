@@ -6,6 +6,6 @@ namespace BeachSAAPI.Services
     {
         Task<User?> ConsultarCedulaAsync(string cedula);
 
-        Task<double> ObtenerTipoCambioAsync();
+        Task<double?> ObtenerTipoCambioAsync();
     }
 }
