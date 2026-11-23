@@ -12,10 +12,12 @@ namespace BeachSAAPI.Controllers
     {
         private DbContextBeachSA dbContext = null;
         private readonly IAuthorizationServices authorizationServices = null;
-        public UsersController(DbContextBeachSA _context, IAuthorizationServices pServices)
+        private readonly IGometaService gometaService;
+        public UsersController(DbContextBeachSA _context, IAuthorizationServices pServices, IGometaService pGometaService)
         {
             this.dbContext = _context;
             this.authorizationServices = pServices;
+            this.gometaService = pGometaService;
         }
 
         [Authorize]
@@ -160,6 +162,39 @@ namespace BeachSAAPI.Controllers
         public List<User> SearchFullName(string name)
         {
             return this.dbContext.Users.Where(r => r.FullName.Contains(name)).ToList();
+        }
+
+        [Authorize]
+        [HttpGet]
+        [Route("CheckIDNumber")]
+        public async Task<IActionResult> ConsultarCedula(string cedula)
+        {
+            if (string.IsNullOrWhiteSpace(cedula) || !cedula.All(char.IsDigit))
+                return BadRequest("Cédula inválida, solo números.");
+
+            if (int.TryParse(cedula, out var id))
+            {
+                var existente = dbContext.Users.FirstOrDefault(x => x.ID == id);
+                if (existente != null)
+                {
+                    existente.Password = ""; 
+                    return Ok(new { esNuevo = false, usuario = existente });
+                }
+            }
+
+            try
+            {
+                var usuario = await gometaService.ConsultarCedulaAsync(cedula);
+
+                if (usuario == null)
+                    return NotFound("No se encontró la cédula en Gometa.");
+
+                return Ok(new { esNuevo = true, usuario });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(502, $"Error consultando Gometa: {ex.Message}");
+            }
         }
     }
 }
