@@ -43,5 +43,13 @@ namespace BeachSAAPI.Services
                 Role = "Customer"
             };
         }
+
+
+        public async Task<double> ObtenerTipoCambioAsync()
+        {
+         
+        }
+
+
     }
 }
