@@ -40,7 +40,7 @@ namespace BeachSAAPI.Controllers
         [Authorize]
         [HttpPost]
         [Route("Create")] 
-        public async Task<string> Create(Reservation reservation)
+        public async Task<object> Create(Reservation reservation)
         {
             string msj = "";
 
@@ -168,20 +168,97 @@ namespace BeachSAAPI.Controllers
 
                 //cambio a colones de lo del total apagar 
                 double totalColones = totalUsd * tipoCambio.Value;
-                
 
-                //se actualizan los valores de descuento, iva y total en la reservacion antes de guardarla en la base de datos
+
+                // Actualizar los valores de la reservacion
                 reservation.Discount = descuento;
                 reservation.IVA = iva;
 
+                // Iniciar una transaccion
+                //una transacción permite guardar varias operaciones juntas
+                // En este caso, es para asegurar que la reservación y la factura se guarden juntas
+                // Si ocurre un error al guardar alguna de las dos, se deshacen los cambios
+                using var transaction = await this.dbContext.Database.BeginTransactionAsync();
 
-                //crear
+                // Guardar la reservacion
                 this.dbContext.Reservations.Add(reservation);
 
                 await this.dbContext.SaveChangesAsync();
-                msj = $"Reservacion para dia  {reservation.CheckInDate} registrada correctamente/" +
-                    //n2:formato de #c
-                    $"Total en colones: {totalColones:N2} y total en dolares: {totalUsd}";
+
+                // Crear la factura automaticamente
+                Invoice invoice = new Invoice();
+
+                invoice.UserId = reservation.UserId;
+                invoice.PackageId = reservation.PackageId;
+                invoice.ReservationId = reservation.ID;
+
+                invoice.InvoiceDate = DateTime.Now;
+
+                invoice.Subtotal = subtotal;
+                invoice.Discount = descuento;
+                invoice.DiscountAmount = montoDescuento;
+                invoice.IVA = iva;
+                invoice.IvaAmount = montoIva;
+                invoice.ExchangeRate = tipoCambio.Value;
+
+                invoice.totalUsd = totalUsd;
+                invoice.totalColones = totalColones;
+
+                // Guardar la factura
+                this.dbContext.Invoices.Add(invoice);
+
+                await this.dbContext.SaveChangesAsync();
+
+                // Utilizar el ID generado como numero de factura
+                invoice.InvoiceNumber = invoice.ID;
+
+                await this.dbContext.SaveChangesAsync();
+
+                // Confirmar la transaccion
+                await transaction.CommitAsync();
+
+
+                return new
+                {
+                    invoiceNumber = invoice.InvoiceNumber,
+                    invoiceDate = invoice.InvoiceDate,
+
+                    customer = new
+                    {
+                        fullName = user.FullName,
+                        id = user.ID,
+                        idType = user.IdType,
+                        email = user.Email,
+                        phoneNumber = user.PhoneNumber
+                    },
+
+                    reservation = new
+                    {
+                        id = reservation.ID,
+                        packageType = package.PackageType,
+                        guestQuantity = reservation.GuestQuantity,
+                        accommodationDays = reservation.AccommodationDays,
+                        checkInDate = reservation.CheckInDate,
+                        checkOutDate = reservation.CheckOutDate,
+                        paymentMethod = reservation.PaymentMethod,
+                        checkNumber = reservation.CheckNumber,
+                        bank = reservation.Bank
+                    },
+
+                    details = new
+                    {
+                        subtotal = subtotal,
+                        discount = descuento,
+                        discountAmount = montoDescuento,
+                        iva = iva,
+                        ivaAmount = montoIva,
+                        exchangeRate = tipoCambio.Value,
+                        totalUsd = totalUsd,
+                        totalColones = totalColones
+                    }
+                };
+
+
             }
             catch (Exception ex)
             {

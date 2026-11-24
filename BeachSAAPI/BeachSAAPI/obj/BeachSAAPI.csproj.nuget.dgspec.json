@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Admin\\source\\repos\\YuliMasi\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI.csproj": {}
+    "C:\\ProgramacionAvanzadaAsp.Net\\proyectoAPI\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Admin\\source\\repos\\YuliMasi\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI.csproj": {
+    "C:\\ProgramacionAvanzadaAsp.Net\\proyectoAPI\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Admin\\source\\repos\\YuliMasi\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI.csproj",
+        "projectUniqueName": "C:\\ProgramacionAvanzadaAsp.Net\\proyectoAPI\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI.csproj",
         "projectName": "BeachSAAPI",
-        "projectPath": "C:\\Users\\Admin\\source\\repos\\YuliMasi\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI.csproj",
-        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Admin\\source\\repos\\YuliMasi\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI\\obj\\",
+        "projectPath": "C:\\ProgramacionAvanzadaAsp.Net\\proyectoAPI\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI.csproj",
+        "packagesPath": "C:\\Users\\Usuario\\.nuget\\packages\\",
+        "outputPath": "C:\\ProgramacionAvanzadaAsp.Net\\proyectoAPI\\BeachSAAPI\\BeachSAAPI\\BeachSAAPI\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Usuario\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],

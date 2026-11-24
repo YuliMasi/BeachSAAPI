@@ -125,6 +125,22 @@
   },
   {
     "ContainingType": "BeachSAAPI.Controllers.InvoicesController",
+    "Method": "SearchDetails",
+    "RelativePath": "api/invoices/SearchDetails",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "reservationId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "BeachSAAPI.Controllers.InvoicesController",
     "Method": "Update",
     "RelativePath": "api/invoices/Update",
     "HttpMethod": "PUT",
@@ -469,17 +485,7 @@
         "IsRequired": true
       }
     ],
-    "ReturnTypes": [
-      {
-        "Type": "System.String",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
+    "ReturnTypes": []
   },
   {
     "ContainingType": "BeachSAAPI.Controllers.ReservationsController",

@@ -182,6 +182,80 @@ namespace BeachSAAPI.Controllers
 
 
 
+        //SearchDetails (Para hacer la factura)
+        [HttpGet]
+        [Route("SearchDetails")]
+        [Authorize]
+        public async Task<IActionResult> SearchDetails(int reservationId)
+        {
+            // Buscar la factura de la reservacion
+            var invoice = await this.dbContext.Invoices.FirstOrDefaultAsync(x => x.ReservationId == reservationId);
+
+            if (invoice == null)
+            {
+                return NotFound("No existe una factura para esta reservacion");
+            }
+                
+
+            // Buscar la reservacion
+            var reservation = await this.dbContext.Reservations.FirstOrDefaultAsync(x => x.ID == invoice.ReservationId);
+
+            // Buscar el cliente
+            var user = await this.dbContext.Users.FirstOrDefaultAsync(x => x.ID == invoice.UserId);
+
+            // Buscar el paquete
+            var package = await this.dbContext.Packages.FirstOrDefaultAsync(x => x.ID == invoice.PackageId);
+
+            if (reservation == null || user == null || package == null)
+            {
+                return NotFound("No se encontraron todos los datos de la factura");
+            }
+                
+
+            // Devolver los datos en formato JSON
+            return Ok(new
+            {
+                invoiceNumber = invoice.InvoiceNumber,
+                invoiceDate = invoice.InvoiceDate,
+
+                customer = new
+                {
+                    fullName = user.FullName,
+                    id = user.ID,
+                    idType = user.IdType,
+                    email = user.Email,
+                    phoneNumber = user.PhoneNumber
+                },
+
+                reservation = new
+                {
+                    id = reservation.ID,
+                    packageType = package.PackageType,
+                    guestQuantity = reservation.GuestQuantity,
+                    accommodationDays = reservation.AccommodationDays,
+                    checkInDate = reservation.CheckInDate,
+                    checkOutDate = reservation.CheckOutDate,
+                    paymentMethod = reservation.PaymentMethod,
+                    checkNumber = reservation.CheckNumber,
+                    bank = reservation.Bank
+                },
+
+                details = new
+                {
+                    subtotal = invoice.Subtotal,
+                    discount = invoice.Discount,
+                    discountAmount = invoice.DiscountAmount,
+                    iva = invoice.IVA,
+                    ivaAmount = invoice.IvaAmount,
+                    exchangeRate = invoice.ExchangeRate,
+                    totalUsd = invoice.totalUsd,
+                    totalColones = invoice.totalColones
+                }
+            });
+        }
+
+
+
 
 
 
