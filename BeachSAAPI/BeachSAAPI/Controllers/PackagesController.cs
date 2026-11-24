@@ -7,6 +7,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BeachSAAPI.Controllers
 {
+    /// <summary>
+    /// Mantenimiento del catálogo de paquetes (api/packages).
+    /// </summary>
     [ApiController]
     [Route("api/packages")]
     public class PackagesController : Controller
@@ -16,6 +19,11 @@ namespace BeachSAAPI.Controllers
 
         private readonly IAuthorizationServices authorizationServices = null;
 
+        /// <summary>
+        /// Recibe el contexto de la base de datos y el servicio de autenticación.
+        /// </summary>
+        /// <param name="_context">Contexto de la base de datos.</param>
+        /// <param name="pServices">Servicio de autenticación.</param>
         public PackagesController(DbContextBeachSA _context, IAuthorizationServices pServices)
         {
             this.dbContext = _context;
@@ -29,6 +37,10 @@ namespace BeachSAAPI.Controllers
         [Route("List")]
         [Authorize]
 
+        /// <summary>
+        /// Lista todos los paquetes.
+        /// </summary>
+        /// <returns>La lista solicitada.</returns>
         public List<Package> List()
         {
             return this.dbContext.Packages.ToList();
@@ -40,6 +52,11 @@ namespace BeachSAAPI.Controllers
         [Route("Create")]
         [Authorize(Roles = "Admin")]
 
+        /// <summary>
+        /// Registra un paquete; el precio, la prima y las mensualidades se asignan según su tipo. Solo Admin.
+        /// </summary>
+        /// <param name="package">Paquete a registrar.</param>
+        /// <returns>Respuesta HTTP 200 con el resultado, o 400 con el mensaje de error.</returns>
         public async Task<IActionResult> Create(Package package)
         {
             string msj = "";
@@ -103,6 +120,11 @@ namespace BeachSAAPI.Controllers
         [Route("Update")]
         [Authorize(Roles = "Admin")]
 
+        /// <summary>
+        /// Modifica el tipo de un paquete y actualiza sus montos. Solo Admin.
+        /// </summary>
+        /// <param name="aux">Paquete con los cambios.</param>
+        /// <returns>Respuesta HTTP 200 con el resultado, o 400 con el mensaje de error.</returns>
         public async Task<IActionResult> Update(Package aux)
         {
             string msj = "";
@@ -169,6 +191,11 @@ namespace BeachSAAPI.Controllers
         [Route("Delete")]
         [Authorize(Roles = "Admin")]
 
+        /// <summary>
+        /// Elimina un paquete. Solo Admin.
+        /// </summary>
+        /// <param name="id">Identificador del paquete.</param>
+        /// <returns>Respuesta HTTP 200 con el resultado, o 400 con el mensaje de error.</returns>
         public async Task<IActionResult> Delete(int id)
         {
             string msj = "";
@@ -212,6 +239,11 @@ namespace BeachSAAPI.Controllers
 
 
         //Search
+        /// <summary>
+        /// Busca un paquete por su identificador.
+        /// </summary>
+        /// <param name="id">Identificador del paquete.</param>
+        /// <returns>El paquete, o null si no existe.</returns>
         [HttpGet]
         [Route("SearchById")]
         [Authorize]
@@ -221,6 +253,11 @@ namespace BeachSAAPI.Controllers
         }
 
 
+        /// <summary>
+        /// Busca paquetes cuyo tipo contenga el texto indicado.
+        /// </summary>
+        /// <param name="packageType">Texto a buscar en el tipo de paquete.</param>
+        /// <returns>Los paquetes encontrados.</returns>
         [HttpGet]
         [Route("SearchDescrip")]
         [Authorize]
@@ -234,6 +271,11 @@ namespace BeachSAAPI.Controllers
     
 
 
+        /// <summary>
+        /// Convierte el mensaje en una respuesta HTTP.
+        /// </summary>
+        /// <param name="msj">Mensaje del resultado; si empieza con "Error" o "Debe" se responde 400.</param>
+        /// <returns>400 si es un error; 200 en otro caso.</returns>
         private IActionResult Respond(string msj)
         {
             if (msj.StartsWith("Error") || msj.StartsWith("Debe"))

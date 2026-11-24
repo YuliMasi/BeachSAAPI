@@ -3,15 +3,27 @@ using BeachSAAPI.Models;
 
 namespace BeachSAAPI.Services
 {
+    /// <summary>
+    /// Consulta cédulas y el tipo de cambio en apis.gometa.org.
+    /// </summary>
     public class GometaService : IGometaService
     {
         private readonly HttpClient httpClient;
 
+        /// <summary>
+        /// Recibe el cliente HTTP configurado para GoMeta.
+        /// </summary>
+        /// <param name="client">Cliente HTTP configurado con la dirección de GoMeta.</param>
         public GometaService(HttpClient client)
         {
             this.httpClient = client;
         }
 
+        /// <summary>
+        /// Consulta una cédula en GoMeta y arma un usuario con sus datos básicos.
+        /// </summary>
+        /// <param name="cedula">Número de cédula, solo dígitos.</param>
+        /// <returns>Un usuario con el nombre y el tipo de cédula, o null si no existe.</returns>
         public async Task<User?> ConsultarCedulaAsync(string cedula)
         {
             var response = await httpClient.GetAsync($"cedulas/{cedula}");
@@ -45,6 +57,10 @@ namespace BeachSAAPI.Services
         }
 
 
+        /// <summary>
+        /// Consulta el tipo de cambio de venta del BCCR en GoMeta.
+        /// </summary>
+        /// <returns>El tipo de cambio, o null si no se pudo obtener.</returns>
         public async Task<double?> ObtenerTipoCambioAsync()
         {
             try

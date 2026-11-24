@@ -11,6 +11,9 @@ using System.Security.Claims;
 
 namespace BeachSAAPI.Controllers
 {
+    /// <summary>
+    /// Reservaciones y su facturación (Reservations). El cliente solo accede a las suyas.
+    /// </summary>
     [ApiController]
     [Route("[controller]")]
     public class ReservationsController : Controller
@@ -20,6 +23,14 @@ namespace BeachSAAPI.Controllers
         private readonly IGometaService gometaService;
         private readonly IInvoicePdfService invoicePdfService;
         private readonly IEmailService emailService;
+        /// <summary>
+        /// Recibe el contexto y los servicios de autenticación, GoMeta, PDF y correo.
+        /// </summary>
+        /// <param name="_context">Contexto de la base de datos.</param>
+        /// <param name="rServices">Servicio de autenticación.</param>
+        /// <param name="_gometaService">Servicio de consulta a GoMeta.</param>
+        /// <param name="_invoicePdfService">Servicio que genera el PDF de la factura.</param>
+        /// <param name="_emailService">Servicio que envía correos.</param>
         public ReservationsController(DbContextBeachSA _context, IAuthorizationServices rServices, IGometaService _gometaService, IInvoicePdfService _invoicePdfService, IEmailService _emailService)
         {
             this.dbContext = _context;
@@ -32,6 +43,10 @@ namespace BeachSAAPI.Controllers
 
 
         //[HttpGet] List : Permite mostrar la lista de la información correspondiente
+        /// <summary>
+        /// Lista las reservaciones: todas para el administrador y las propias para el cliente.
+        /// </summary>
+        /// <returns>La lista solicitada.</returns>
         [Authorize]
         [HttpGet]
         [Route("List")]
@@ -50,6 +65,11 @@ namespace BeachSAAPI.Controllers
 
 
         //[HttpPost]Create(Object) :  Permite registrar  los datos en la base datos
+        /// <summary>
+        /// Registra la reservación, calcula descuento, IVA y colones, crea la factura en una transacción y la envía por correo.
+        /// </summary>
+        /// <param name="reservation">Datos de la reservación.</param>
+        /// <returns>200 con el detalle de la factura, o 400 con el error.</returns>
         [Authorize]
         [HttpPost]
         [Route("Create")] 
@@ -302,6 +322,11 @@ namespace BeachSAAPI.Controllers
 
         //[HttpPut]Edit(Object):  Permite realizar el proceso de modificación de un registro anteriormente creado.
 
+        /// <summary>
+        /// Modifica la reservación y recalcula su factura en la misma transacción.
+        /// </summary>
+        /// <param name="aux">Reservación con los cambios.</param>
+        /// <returns>Respuesta HTTP 200 con el resultado, o 400 con el mensaje de error.</returns>
         [Authorize]
             [HttpPut]
             [Route("Update")]
@@ -450,6 +475,11 @@ namespace BeachSAAPI.Controllers
 
 
         //[HttpDelete] Delete(ID) : Permite eliminar un registro por medio de su identificador
+        /// <summary>
+        /// Cancela la reservación y elimina su factura.
+        /// </summary>
+        /// <param name="id">Identificador de la reservación.</param>
+        /// <returns>Respuesta HTTP 200 con el resultado, o 400 con el mensaje de error.</returns>
         [Authorize]
         [HttpDelete]
             [Route("Delete")]
@@ -491,6 +521,11 @@ namespace BeachSAAPI.Controllers
 
 
             //[HttpGet] Search(ID) : Recibe como parámetro un valor especifica para identificar un registro en la base datos.
+            /// <summary>
+            /// Busca una reservación por su identificador.
+            /// </summary>
+            /// <param name="id">Identificador de la reservación.</param>
+            /// <returns>La reservación, o null si no existe o no es del usuario.</returns>
             [Authorize]
             [HttpGet]
             [Route("Search")]
@@ -510,6 +545,11 @@ namespace BeachSAAPI.Controllers
         //[HttpGet] SearchDescrip(value): Recibe un valor para buscar un registro por medio desu descripción.
 
 
+        /// <summary>
+        /// Busca reservaciones por forma de pago.
+        /// </summary>
+        /// <param name="value">Forma de pago a buscar.</param>
+        /// <returns>Las reservaciones encontradas.</returns>
         [HttpGet]
         [Route("SearchDescrip")]
         [Authorize]
@@ -532,17 +572,30 @@ namespace BeachSAAPI.Controllers
     
 
 
+        /// <summary>
+        /// Indica si el usuario del token es administrador.
+        /// </summary>
+        /// <returns>true si su rol es Admin.</returns>
         private bool IsAdmin()
         {
             return User.IsInRole("Admin");
         }
 
+        /// <summary>
+        /// Obtiene el usuario del token.
+        /// </summary>
+        /// <returns>El usuario, o null si no existe.</returns>
         private async Task<User> CurrentUser()
         {
             string email = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             return await this.dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
 
+        /// <summary>
+        /// Indica si el usuario puede usar una reservación.
+        /// </summary>
+        /// <param name="reservation">Reservación a revisar.</param>
+        /// <returns>true si es Admin o si la reservación es suya.</returns>
         private async Task<bool> CanAccess(Reservation reservation)
         {
             if (this.IsAdmin())
@@ -554,6 +607,11 @@ namespace BeachSAAPI.Controllers
             return current != null && reservation.UserId == current.ID;
         }
 
+        /// <summary>
+        /// Convierte el mensaje en una respuesta HTTP.
+        /// </summary>
+        /// <param name="msj">Mensaje del resultado; si empieza con "Error" o "Debe" se responde 400.</param>
+        /// <returns>400 si es un error; 200 en otro caso.</returns>
         private IActionResult Respond(string msj)
         {
             if (msj.StartsWith("Error") || msj.StartsWith("Debe"))

@@ -4,17 +4,33 @@ using MimeKit;
 
 namespace BeachSAAPI.Services
 {
+    /// <summary>
+    /// Envía correos con MailKit mediante el servidor SMTP configurado.
+    /// </summary>
     public class EmailService : IEmailService
     {
         private readonly IConfiguration configuration;
         private readonly ILogger<EmailService> logger;
 
+        /// <summary>
+        /// Recibe la configuración SMTP y el registro de eventos.
+        /// </summary>
+        /// <param name="pConfig">Configuración de la aplicación (appsettings.json).</param>
+        /// <param name="pLogger">Servicio de registro de eventos.</param>
         public EmailService(IConfiguration pConfig, ILogger<EmailService> pLogger)
         {
             this.configuration = pConfig;
             this.logger = pLogger;
         }
 
+        /// <summary>
+        /// Envía la factura en PDF al correo del cliente.
+        /// </summary>
+        /// <param name="toEmail">Correo del destinatario.</param>
+        /// <param name="toName">Nombre del destinatario.</param>
+        /// <param name="invoiceNumber">Número de la factura.</param>
+        /// <param name="pdf">Contenido del PDF adjunto.</param>
+        /// <returns>true si el correo se envió; false si ocurrió un error.</returns>
         public async Task<bool> SendInvoiceAsync(string toEmail, string toName, int invoiceNumber, byte[] pdf)
         {
             var settings = this.configuration.GetSection("EmailSettings");
