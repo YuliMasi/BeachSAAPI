@@ -3,6 +3,8 @@ using BeachSAAPI.Models;
 using BeachSAAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace BeachSAAPI.Controllers
 {
@@ -20,12 +22,32 @@ namespace BeachSAAPI.Controllers
             this.gometaService = pGometaService;
         }
 
-        //[Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         [Route("List")]
         public List<User> List()
         {
-            return this.dbContext.Users.ToList();
+            List<User> users = this.dbContext.Users.AsNoTracking().ToList();
+            users.ForEach(u => u.Password = null);
+            return users;
+        }
+
+        [Authorize]
+        [HttpGet]
+        [Route("Profile")]
+        public IActionResult Profile()
+        {
+            string email = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            User temp = this.dbContext.Users.AsNoTracking().FirstOrDefault(u => u.Email == email);
+
+            if (temp == null)
+            {
+                return NotFound("Usuario no encontrado");
+            }
+
+            temp.Password = null;
+            return Ok(temp);
         }
 
         [HttpPost]
@@ -44,7 +66,7 @@ namespace BeachSAAPI.Controllers
             }
         }
 
-        [Authorize] 
+        [Authorize(Roles = "Admin")]
         [HttpPut]
         [Route("Create")]
         public async Task<string> Create(User temp)
@@ -145,7 +167,7 @@ namespace BeachSAAPI.Controllers
         }
 
         [HttpDelete]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [Route("Delete")]
         public async Task<string> Delete(string email)
         {

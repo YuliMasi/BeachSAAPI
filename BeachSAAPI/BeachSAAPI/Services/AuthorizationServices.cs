@@ -28,7 +28,7 @@ namespace BeachSAAPI.Services
            
             if (temp != null)
             {    
-                token = this.GenerarToken(temp.Email);
+                token = this.GenerarToken(temp);
 
                 return new AuthorizationResponse() { Token = token, Result = true, Msj = "Ok" };
             }
@@ -39,19 +39,20 @@ namespace BeachSAAPI.Services
         }
 
 
-        private string GenerarToken(string email)
+        private string GenerarToken(User user)
         {
             string tokenCreado = "";
             var key = this.configuration.GetValue<string>("JwtSettings:Key");
             var keyBytes = Encoding.ASCII.GetBytes(key);
             var claims = new ClaimsIdentity();
-            claims.AddClaim(new Claim(ClaimTypes.NameIdentifier, email));
+            claims.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Email));
+            claims.AddClaim(new Claim(ClaimTypes.Role, string.IsNullOrEmpty(user.Role) ? "Customer" : user.Role));
             var credencialesToken = new SigningCredentials(
                 new SymmetricSecurityKey(keyBytes), SecurityAlgorithms.HmacSha256);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = claims, 
-                Expires = DateTime.UtcNow.AddMinutes(5), 
+                Expires = DateTime.UtcNow.AddMinutes(8), 
                 SigningCredentials = credencialesToken 
             };
 

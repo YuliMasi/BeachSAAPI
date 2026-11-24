@@ -38,7 +38,7 @@ namespace BeachSAAPI.Controllers
         //Post
         [HttpPost]
         [Route("Create")]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
 
         public async Task<string> Create(Package package)
         {
@@ -97,7 +97,7 @@ namespace BeachSAAPI.Controllers
         //Edit
         [HttpPut]
         [Route("Update")]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
 
         public async Task<string> Update(Package aux)
         {
@@ -159,7 +159,7 @@ namespace BeachSAAPI.Controllers
         //Delete
         [HttpDelete]
         [Route("Delete")]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
 
         public async Task<string> Delete(int id)
         {
