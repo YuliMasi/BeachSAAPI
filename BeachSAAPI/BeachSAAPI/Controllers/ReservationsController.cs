@@ -363,7 +363,10 @@ namespace BeachSAAPI.Controllers
                 }
 
                 //buscar el paquete  para recalcular
-                var package = await this.dbContext.Packages.FirstOrDefaultAsync(p => p.ID == temp.PackageId);
+                int packageId = aux.PackageId > 0 ? aux.PackageId : temp.PackageId;
+                var package = await this.dbContext.Packages.FirstOrDefaultAsync(p => p.ID == packageId);
+                if (package == null)
+                    return this.Respond("Error, el paquete no existe");
 
                 //recalculos si se editan numeros
                 double subtotal = package.Cost * nights * aux.GuestQuantity;
@@ -379,8 +382,10 @@ namespace BeachSAAPI.Controllers
 
                 double iva = 0.13;
 
-                double subtotalConDescuento = subtotal - (subtotal * descuento);
-                double totalUsd = subtotalConDescuento + (subtotalConDescuento * iva);
+                double montoDescuento = subtotal * descuento;
+                double subtotalConDescuento = subtotal - montoDescuento;
+                double montoIva = subtotalConDescuento * iva;
+                double totalUsd = subtotalConDescuento + montoIva;
 
                 double? tipoCambio = await gometaService.ObtenerTipoCambioAsync();
                 if (tipoCambio == null)
@@ -390,6 +395,7 @@ namespace BeachSAAPI.Controllers
 
 
                 //actualziar datos
+                temp.PackageId = package.ID;
                 temp.AccommodationDays = aux.AccommodationDays;
                 temp.Discount = descuento;
                 temp.IVA = iva;
@@ -411,6 +417,21 @@ namespace BeachSAAPI.Controllers
 
 
                 this.dbContext.Reservations.Update(temp);
+
+                Invoice invoice = await this.dbContext.Invoices.FirstOrDefaultAsync(i => i.ReservationId == temp.ID);
+                if (invoice != null)
+                {
+                    invoice.PackageId = package.ID;
+                    invoice.Subtotal = subtotal;
+                    invoice.Discount = descuento;
+                    invoice.DiscountAmount = montoDescuento;
+                    invoice.IVA = iva;
+                    invoice.IvaAmount = montoIva;
+                    invoice.ExchangeRate = tipoCambio.Value;
+                    invoice.totalUsd = totalUsd;
+                    invoice.totalColones = totalColones;
+                }
+
                 using (var transaction = await this.dbContext.Database.BeginTransactionAsync())
                 {
                     await this.dbContext.SaveChangesAsync();
