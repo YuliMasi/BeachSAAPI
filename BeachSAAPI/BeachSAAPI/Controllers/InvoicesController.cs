@@ -53,7 +53,7 @@ namespace BeachSAAPI.Controllers
         //Post
         [HttpPost]
         [Route("Create")]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
 
         public async Task<IActionResult> Create(Invoice invoice)
         {
@@ -110,7 +110,7 @@ namespace BeachSAAPI.Controllers
         //Edit
         [HttpPut]
         [Route("Update")]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
 
         public async Task<IActionResult> Update(Invoice aux)
         {
@@ -133,7 +133,7 @@ namespace BeachSAAPI.Controllers
         //Delete
         [HttpDelete]
         [Route("Delete")]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
 
         public async Task<IActionResult> Delete(int id)
         {

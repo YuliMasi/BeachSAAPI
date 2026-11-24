@@ -267,6 +267,12 @@ namespace BeachSAAPI.Controllers
                 var existente = dbContext.Users.FirstOrDefault(x => x.ID == id);
                 if (existente != null)
                 {
+                    string currentEmail = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                    if (!User.IsInRole("Admin") && existente.Email != currentEmail)
+                    {
+                        return Ok(new { esNuevo = false });
+                    }
+
                     existente.Password = ""; 
                     return Ok(new { esNuevo = false, usuario = existente });
                 }
