@@ -20,7 +20,7 @@ namespace BeachSAAPI.Controllers
             this.gometaService = pGometaService;
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpGet]
         [Route("List")]
         public List<User> List()

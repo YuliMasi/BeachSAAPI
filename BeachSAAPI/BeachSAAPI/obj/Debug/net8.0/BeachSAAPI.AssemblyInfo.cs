@@ -14,11 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BeachSAAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-<<<<<<< HEAD
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+840d16f2bd36593c3a08d83e9e0dfc5f714e8b0f")]
-=======
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7435fa4a68e1db00321115ad488674b149e4e649")]
->>>>>>> ea9c9933281d855cc716559eadaad0785db47745
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3a917bb792fbdf773a4815f97d8ba1e6cbfda522")]
 [assembly: System.Reflection.AssemblyProductAttribute("BeachSAAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BeachSAAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
