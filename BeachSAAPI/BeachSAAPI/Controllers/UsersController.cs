@@ -70,6 +70,37 @@ namespace BeachSAAPI.Controllers
             return msj;
         }
 
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("Register")]
+        public async Task<IActionResult> Register(User temp)
+        {
+            if (temp == null || string.IsNullOrEmpty(temp.Email) || string.IsNullOrEmpty(temp.Password))
+            {
+                return BadRequest("No se permiten datos vacíos");
+            }
+
+            bool exists = this.dbContext.Users.Any(u => u.Email == temp.Email);
+            if (exists)
+            {
+                return BadRequest("Ya existe una cuenta con ese correo");
+            }
+
+            temp.ID = 0;
+            temp.Role = "Customer";
+
+            try
+            {
+                this.dbContext.Users.Add(temp);
+                await this.dbContext.SaveChangesAsync();
+                return Ok($"Usuario {temp.FullName} registrado correctamente");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error, {ex.InnerException?.Message ?? ex.Message}");
+            }
+        }
+
         [HttpPost]
         [Authorize]
         [Route("Update")]
