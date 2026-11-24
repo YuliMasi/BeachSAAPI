@@ -4,6 +4,7 @@ using BeachSAAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 namespace BeachSAAPI.Controllers
 {
 
@@ -37,9 +38,15 @@ namespace BeachSAAPI.Controllers
         [Route("List")]
         [Authorize]
 
-        public List<Invoice> List()
+        public async Task<List<Invoice>> List()
         {
-            return this.dbContext.Invoices.ToList();
+            if (this.IsAdmin())
+            {
+                return await this.dbContext.Invoices.ToListAsync();
+            }
+
+            int userId = await this.CurrentUserId();
+            return await this.dbContext.Invoices.Where(x => x.UserId == userId).ToListAsync();
         }
 
 
@@ -172,7 +179,14 @@ namespace BeachSAAPI.Controllers
         [Authorize]
         public async Task<Invoice> SearchById(int id)
         {
-            return await this.dbContext.Invoices.FirstOrDefaultAsync(x => x.ID == id);
+            Invoice temp = await this.dbContext.Invoices.FirstOrDefaultAsync(x => x.ID == id);
+
+            if (temp != null && !await this.CanAccess(temp))
+            {
+                return null;
+            }
+
+            return temp;
         }
 
 
@@ -181,7 +195,15 @@ namespace BeachSAAPI.Controllers
         [Authorize]
         public async Task<List<Invoice>> SearchDescrip(int value)
         {
-            return await this.dbContext.Invoices.Where(x => x.InvoiceNumber == value).ToListAsync();
+            var query = this.dbContext.Invoices.Where(x => x.InvoiceNumber == value);
+
+            if (!this.IsAdmin())
+            {
+                int userId = await this.CurrentUserId();
+                query = query.Where(x => x.UserId == userId);
+            }
+
+            return await query.ToListAsync();
         }
 
 
@@ -195,7 +217,7 @@ namespace BeachSAAPI.Controllers
             // Buscar la factura de la reservacion
             var invoice = await this.dbContext.Invoices.FirstOrDefaultAsync(x => x.ReservationId == reservationId);
 
-            if (invoice == null)
+            if (invoice == null || !await this.CanAccess(invoice))
             {
                 return NotFound("No existe una factura para esta reservacion");
             }
@@ -320,7 +342,7 @@ namespace BeachSAAPI.Controllers
         private async Task<(Invoice invoice, Reservation reservation, User user, Package package)?> LoadInvoiceData(int reservationId)
         {
             var invoice = await this.dbContext.Invoices.FirstOrDefaultAsync(x => x.ReservationId == reservationId);
-            if (invoice == null)
+            if (invoice == null || !await this.CanAccess(invoice))
             {
                 return null;
             }
@@ -338,6 +360,28 @@ namespace BeachSAAPI.Controllers
         }
     
 
+
+        private bool IsAdmin()
+        {
+            return User.IsInRole("Admin");
+        }
+
+        private async Task<int> CurrentUserId()
+        {
+            string email = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            User current = await this.dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
+            return current?.ID ?? 0;
+        }
+
+        private async Task<bool> CanAccess(Invoice invoice)
+        {
+            if (this.IsAdmin())
+            {
+                return true;
+            }
+
+            return invoice.UserId == await this.CurrentUserId();
+        }
 
         private IActionResult Respond(string msj)
         {

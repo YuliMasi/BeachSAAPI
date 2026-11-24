@@ -107,13 +107,22 @@ namespace BeachSAAPI.Controllers
                 return BadRequest("No se permiten datos vacíos");
             }
 
+            if (temp.ID <= 0)
+            {
+                return BadRequest("Debe indicar una cédula válida");
+            }
+
+            if (this.dbContext.Users.Any(u => u.ID == temp.ID))
+            {
+                return BadRequest("Ya existe una cuenta con esa cédula");
+            }
+
             bool exists = this.dbContext.Users.Any(u => u.Email == temp.Email);
             if (exists)
             {
                 return BadRequest("Ya existe una cuenta con ese correo");
             }
 
-            temp.ID = 0;
             temp.Role = "Customer";
             temp.Password = PasswordHasher.Hash(temp.Password);
 
@@ -139,14 +148,20 @@ namespace BeachSAAPI.Controllers
             { 
                 if (temp == null)
                 {
-                    msj = "No se permiten datos vacíos";
+                    msj = "Error, no se permiten datos vacíos";
                 }
                 else
                 {
+                    bool isAdmin = User.IsInRole("Admin");
+                    string currentEmail = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                     var aux = this.dbContext.Users.FirstOrDefault(x => x.Email.Equals(temp.Email));
                     if (aux == null)
                     {
-                        msj = $"No existe el usuario {temp.FullName} registrado";
+                        msj = $"Error, no existe el usuario {temp.FullName} registrado";
+                    }
+                    else if (!isAdmin && aux.Email != currentEmail)
+                    {
+                        msj = "Error, solo puede modificar su propio perfil";
                     }
                     else
                     {
@@ -159,7 +174,10 @@ namespace BeachSAAPI.Controllers
                         {
                             aux.Password = PasswordHasher.IsHash(temp.Password) ? temp.Password : PasswordHasher.Hash(temp.Password);
                         }
-                        aux.Role = temp.Role;
+                        if (isAdmin && !string.IsNullOrEmpty(temp.Role))
+                        {
+                            aux.Role = temp.Role;
+                        }
 
                         this.dbContext.Users.Update(aux);
                         using (var transaction = await this.dbContext.Database.BeginTransactionAsync())
@@ -226,12 +244,14 @@ namespace BeachSAAPI.Controllers
             return this.Respond(msj);
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         [Route("SearchFullName")]
         public List<User> SearchFullName(string name)
         {
-            return this.dbContext.Users.Where(r => r.FullName.Contains(name)).ToList();
+            List<User> users = this.dbContext.Users.AsNoTracking().Where(r => r.FullName.Contains(name)).ToList();
+            users.ForEach(u => u.Password = null);
+            return users;
         }
 
         [Authorize]
