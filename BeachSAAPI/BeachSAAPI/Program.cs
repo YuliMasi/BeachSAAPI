@@ -15,7 +15,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<DbContextBeachSA>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("StringLocal")));
+    //options.UseSqlServer(builder.Configuration.GetConnectionString("StringLocal")));
+options.UseSqlServer(builder.Configuration.GetConnectionString("StringCloud")));
 
 builder.Services.AddHttpClient<IGometaService, GometaService>(client =>
 {
