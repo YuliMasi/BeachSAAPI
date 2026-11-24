@@ -4,6 +4,9 @@ using System.Text;
 
 namespace BeachSAAPI.Services
 {
+    /// <summary>
+    /// Genera el PDF de la factura en C#, sin librerías externas, para que funcione en Somee.
+    /// </summary>
     public class InvoicePdfService : IInvoicePdfService
     {
         private const double PageWidth = 612;
@@ -28,6 +31,14 @@ namespace BeachSAAPI.Services
         private readonly StringBuilder content = new StringBuilder();
         private readonly CultureInfo inv = CultureInfo.InvariantCulture;
 
+        /// <summary>
+        /// Genera el PDF con los datos del cliente, la reservación, los montos, la prima y las mensualidades.
+        /// </summary>
+        /// <param name="invoice">Factura a generar o validar.</param>
+        /// <param name="reservation">Reservación asociada.</param>
+        /// <param name="user">Usuario para el que se genera el token.</param>
+        /// <param name="package">Paquete asociado.</param>
+        /// <returns>El contenido del archivo PDF.</returns>
         public byte[] Generate(Invoice invoice, Reservation reservation, User user, Package package)
         {
             this.content.Clear();

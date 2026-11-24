@@ -8,6 +8,9 @@ using System.Security.Claims;
 
 namespace BeachSAAPI.Controllers
 {
+    /// <summary>
+    /// Usuarios, registro, inicio de sesión y perfil (api/users).
+    /// </summary>
     [ApiController]
     [Route("api/users")]
     public class UsersController : Controller
@@ -15,6 +18,12 @@ namespace BeachSAAPI.Controllers
         private DbContextBeachSA dbContext = null;
         private readonly IAuthorizationServices authorizationServices = null;
         private readonly IGometaService gometaService;
+        /// <summary>
+        /// Recibe el contexto y los servicios de autenticación y GoMeta.
+        /// </summary>
+        /// <param name="_context">Contexto de la base de datos.</param>
+        /// <param name="pServices">Servicio de autenticación.</param>
+        /// <param name="pGometaService">Servicio de consulta a GoMeta.</param>
         public UsersController(DbContextBeachSA _context, IAuthorizationServices pServices, IGometaService pGometaService)
         {
             this.dbContext = _context;
@@ -22,6 +31,10 @@ namespace BeachSAAPI.Controllers
             this.gometaService = pGometaService;
         }
 
+        /// <summary>
+        /// Lista todos los usuarios sin contraseñas. Solo Admin.
+        /// </summary>
+        /// <returns>La lista solicitada.</returns>
         [Authorize(Roles = "Admin")]
         [HttpGet]
         [Route("List")]
@@ -32,6 +45,10 @@ namespace BeachSAAPI.Controllers
             return users;
         }
 
+        /// <summary>
+        /// Devuelve el perfil del usuario del token, sin contraseña.
+        /// </summary>
+        /// <returns>200 con el usuario, o 404 si no existe.</returns>
         [Authorize]
         [HttpGet]
         [Route("Profile")]
@@ -50,6 +67,11 @@ namespace BeachSAAPI.Controllers
             return Ok(temp);
         }
 
+        /// <summary>
+        /// Valida las credenciales y devuelve el token JWT. No requiere token.
+        /// </summary>
+        /// <param name="temp">Correo y contraseña del usuario.</param>
+        /// <returns>200 con el token, o 401 si las credenciales no son válidas.</returns>
         [HttpPost]
         [Route("AuthenticationUser")]
         public IActionResult AuthenticationUser(User temp)
@@ -66,6 +88,11 @@ namespace BeachSAAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Registra un usuario con cualquier rol. Solo Admin.
+        /// </summary>
+        /// <param name="temp">Usuario a registrar.</param>
+        /// <returns>Respuesta HTTP 200 con el resultado, o 400 con el mensaje de error.</returns>
         [Authorize(Roles = "Admin")]
         [HttpPut]
         [Route("Create")]
@@ -97,6 +124,11 @@ namespace BeachSAAPI.Controllers
             return this.Respond(msj);
         }
 
+        /// <summary>
+        /// Registra un cliente nuevo con la cédula como identificador. No requiere token.
+        /// </summary>
+        /// <param name="temp">Datos del cliente.</param>
+        /// <returns>Respuesta HTTP 200 con el resultado, o 400 con el mensaje de error.</returns>
         [AllowAnonymous]
         [HttpPost]
         [Route("Register")]
@@ -138,6 +170,11 @@ namespace BeachSAAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Modifica un usuario; el cliente solo el suyo y solo el Admin cambia roles. La contraseña solo cambia si viene una nueva.
+        /// </summary>
+        /// <param name="temp">Usuario con los cambios.</param>
+        /// <returns>Respuesta HTTP 200 con el resultado, o 400 con el mensaje de error.</returns>
         [HttpPost]
         [Authorize]
         [Route("Update")]
@@ -197,6 +234,11 @@ namespace BeachSAAPI.Controllers
             return this.Respond(msj);
         }
 
+        /// <summary>
+        /// Elimina un usuario por su correo; los administradores no se pueden eliminar. Solo Admin.
+        /// </summary>
+        /// <param name="email">Correo del usuario.</param>
+        /// <returns>Respuesta HTTP 200 con el resultado, o 400 con el mensaje de error.</returns>
         [HttpDelete]
         [Authorize(Roles = "Admin")]
         [Route("Delete")]
@@ -244,6 +286,11 @@ namespace BeachSAAPI.Controllers
             return this.Respond(msj);
         }
 
+        /// <summary>
+        /// Busca usuarios por nombre, sin contraseñas. Solo Admin.
+        /// </summary>
+        /// <param name="name">Nombre o parte del nombre a buscar.</param>
+        /// <returns>La lista solicitada.</returns>
         [Authorize(Roles = "Admin")]
         [HttpGet]
         [Route("SearchFullName")]
@@ -254,6 +301,11 @@ namespace BeachSAAPI.Controllers
             return users;
         }
 
+        /// <summary>
+        /// Busca una cédula entre los usuarios y, si no existe, la consulta en GoMeta. Solo el Admin o el dueño ven los datos de un usuario existente.
+        /// </summary>
+        /// <param name="cedula">Número de cédula, solo dígitos.</param>
+        /// <returns>200 con esNuevo y los datos, 400, 404 o 502.</returns>
         [Authorize]
         [HttpGet]
         [Route("CheckIDNumber")]
@@ -295,6 +347,11 @@ namespace BeachSAAPI.Controllers
     
 
 
+        /// <summary>
+        /// Convierte el mensaje en una respuesta HTTP.
+        /// </summary>
+        /// <param name="msj">Mensaje del resultado; si empieza con "Error" o "Debe" se responde 400.</param>
+        /// <returns>400 si es un error; 200 en otro caso.</returns>
         private IActionResult Respond(string msj)
         {
             if (msj.StartsWith("Error") || msj.StartsWith("Debe"))

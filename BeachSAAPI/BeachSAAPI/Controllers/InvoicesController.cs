@@ -8,6 +8,9 @@ using System.Security.Claims;
 namespace BeachSAAPI.Controllers
 {
 
+    /// <summary>
+    /// Consulta, PDF y envío de facturas (api/invoices). El cliente solo accede a las suyas.
+    /// </summary>
     [ApiController]
     [Route("api/invoices")]
     public class InvoicesController : Controller
@@ -20,6 +23,13 @@ namespace BeachSAAPI.Controllers
         private readonly IInvoicePdfService invoicePdfService;
         private readonly IEmailService emailService;
 
+        /// <summary>
+        /// Recibe el contexto y los servicios de autenticación, PDF y correo.
+        /// </summary>
+        /// <param name="_context">Contexto de la base de datos.</param>
+        /// <param name="iServices">Servicio de autenticación.</param>
+        /// <param name="iPdfService">Servicio que genera el PDF de la factura.</param>
+        /// <param name="iEmailService">Servicio que envía correos.</param>
         public InvoicesController(DbContextBeachSA _context, IAuthorizationServices iServices, IInvoicePdfService iPdfService, IEmailService iEmailService)
         {
             this.dbContext = _context;
@@ -38,6 +48,10 @@ namespace BeachSAAPI.Controllers
         [Route("List")]
         [Authorize]
 
+        /// <summary>
+        /// Lista las facturas: todas para el administrador y las propias para el cliente.
+        /// </summary>
+        /// <returns>La lista solicitada.</returns>
         public async Task<List<Invoice>> List()
         {
             if (this.IsAdmin())
@@ -55,6 +69,11 @@ namespace BeachSAAPI.Controllers
         [Route("Create")]
         [Authorize(Roles = "Admin")]
 
+        /// <summary>
+        /// Registra una factura manualmente. Solo Admin.
+        /// </summary>
+        /// <param name="invoice">Factura a registrar.</param>
+        /// <returns>Respuesta HTTP 200 con el resultado, o 400 con el mensaje de error.</returns>
         public async Task<IActionResult> Create(Invoice invoice)
         {
             string msj = "";
@@ -112,6 +131,11 @@ namespace BeachSAAPI.Controllers
         [Route("Update")]
         [Authorize(Roles = "Admin")]
 
+        /// <summary>
+        /// Reservado para modificar facturas. Solo Admin.
+        /// </summary>
+        /// <param name="aux">Factura con los cambios.</param>
+        /// <returns>Respuesta HTTP 200 con el resultado, o 400 con el mensaje de error.</returns>
         public async Task<IActionResult> Update(Invoice aux)
         {
             string msj = "";
@@ -135,6 +159,11 @@ namespace BeachSAAPI.Controllers
         [Route("Delete")]
         [Authorize(Roles = "Admin")]
 
+        /// <summary>
+        /// Elimina una factura. Solo Admin.
+        /// </summary>
+        /// <param name="id">Identificador de la factura.</param>
+        /// <returns>Respuesta HTTP 200 con el resultado, o 400 con el mensaje de error.</returns>
         public async Task<IActionResult> Delete(int id)
         {
             string msj = "";
@@ -174,6 +203,11 @@ namespace BeachSAAPI.Controllers
 
 
         //Search
+        /// <summary>
+        /// Busca una factura por su identificador.
+        /// </summary>
+        /// <param name="id">Identificador de la factura.</param>
+        /// <returns>La factura, o null si no existe o no es del usuario.</returns>
         [HttpGet]
         [Route("SearchById")]
         [Authorize]
@@ -190,6 +224,11 @@ namespace BeachSAAPI.Controllers
         }
 
 
+        /// <summary>
+        /// Busca facturas por su número.
+        /// </summary>
+        /// <param name="value">Número de factura.</param>
+        /// <returns>Las facturas encontradas.</returns>
         [HttpGet]
         [Route("SearchDescrip")]
         [Authorize]
@@ -209,6 +248,11 @@ namespace BeachSAAPI.Controllers
 
 
         //SearchDetails (Para hacer la factura)
+        /// <summary>
+        /// Devuelve el detalle completo de la factura de una reservación.
+        /// </summary>
+        /// <param name="reservationId">Identificador de la reservación de la factura.</param>
+        /// <returns>200 con el detalle, o 404 si no existe o no es del usuario.</returns>
         [HttpGet]
         [Route("SearchDetails")]
         [Authorize]
@@ -296,6 +340,11 @@ namespace BeachSAAPI.Controllers
     
 
 
+        /// <summary>
+        /// Genera y descarga el PDF de la factura de una reservación.
+        /// </summary>
+        /// <param name="reservationId">Identificador de la reservación de la factura.</param>
+        /// <returns>El archivo PDF, o 404 si no existe o no es del usuario.</returns>
         [HttpGet]
         [Route("Pdf")]
         [Authorize]
@@ -314,6 +363,11 @@ namespace BeachSAAPI.Controllers
         }
 
 
+        /// <summary>
+        /// Reenvía por correo el PDF de la factura al cliente.
+        /// </summary>
+        /// <param name="reservationId">Identificador de la reservación de la factura.</param>
+        /// <returns>200 si se envió, 404 si no existe o 500 si falló el correo.</returns>
         [HttpPost]
         [Route("SendEmail")]
         [Authorize]
@@ -339,6 +393,11 @@ namespace BeachSAAPI.Controllers
         }
 
 
+        /// <summary>
+        /// Carga la factura, la reservación, el cliente y el paquete de una reservación.
+        /// </summary>
+        /// <param name="reservationId">Identificador de la reservación de la factura.</param>
+        /// <returns>Los cuatro registros, o null si falta alguno o no es del usuario.</returns>
         private async Task<(Invoice invoice, Reservation reservation, User user, Package package)?> LoadInvoiceData(int reservationId)
         {
             var invoice = await this.dbContext.Invoices.FirstOrDefaultAsync(x => x.ReservationId == reservationId);
@@ -361,11 +420,19 @@ namespace BeachSAAPI.Controllers
     
 
 
+        /// <summary>
+        /// Indica si el usuario del token es administrador.
+        /// </summary>
+        /// <returns>true si su rol es Admin.</returns>
         private bool IsAdmin()
         {
             return User.IsInRole("Admin");
         }
 
+        /// <summary>
+        /// Obtiene la cédula del usuario del token.
+        /// </summary>
+        /// <returns>La cédula, o 0 si no existe.</returns>
         private async Task<int> CurrentUserId()
         {
             string email = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -373,6 +440,11 @@ namespace BeachSAAPI.Controllers
             return current?.ID ?? 0;
         }
 
+        /// <summary>
+        /// Indica si el usuario puede ver una factura.
+        /// </summary>
+        /// <param name="invoice">Factura a revisar.</param>
+        /// <returns>true si es Admin o si la factura es suya.</returns>
         private async Task<bool> CanAccess(Invoice invoice)
         {
             if (this.IsAdmin())
@@ -383,6 +455,11 @@ namespace BeachSAAPI.Controllers
             return invoice.UserId == await this.CurrentUserId();
         }
 
+        /// <summary>
+        /// Convierte el mensaje en una respuesta HTTP.
+        /// </summary>
+        /// <param name="msj">Mensaje del resultado; si empieza con "Error" o "Debe" se responde 400.</param>
+        /// <returns>400 si es un error; 200 en otro caso.</returns>
         private IActionResult Respond(string msj)
         {
             if (msj.StartsWith("Error") || msj.StartsWith("Debe"))
