@@ -27,7 +27,7 @@ namespace BeachSAAPI.Controllers
         //List
         [HttpGet]
         [Route("List")]
-        //[Authorize]
+        [Authorize]
 
         public List<Package> List()
         {
@@ -38,7 +38,7 @@ namespace BeachSAAPI.Controllers
         //Post
         [HttpPost]
         [Route("Create")]
-        //[Authorize]
+        [Authorize]
 
         public async Task<string> Create(Package package)
         {
@@ -97,7 +97,7 @@ namespace BeachSAAPI.Controllers
         //Edit
         [HttpPut]
         [Route("Update")]
-        //[Authorize]
+        [Authorize]
 
         public async Task<string> Update(Package aux)
         {
