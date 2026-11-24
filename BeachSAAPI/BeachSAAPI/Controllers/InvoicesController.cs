@@ -50,7 +50,41 @@ namespace BeachSAAPI.Controllers
 
             try
             {
+                //validaciones
+                if (invoice == null)
+                    return "Error, no se permiten datos en blanco";
 
+                //defaulttime = 01/01/0001 00:00:00
+                if (invoice.InvoiceDate == default(DateTime))
+                    return "Error, indicar la fecha de la factura";
+
+                //la fecha de la factura no puede ser de manana 
+                if (invoice.InvoiceDate.Date > DateTime.Today)
+                    return "Error, la fecha de la factura no puede ser posterior a hoy";
+
+                //negativos
+                if (invoice.totalUsd <= 0)
+                    return "Error, el total en dolares debe ser mayor a 0";
+
+                if (invoice.totalColones <= 0)
+                    return "Error, el total en colones debe ser mayor a 0";
+
+
+
+                //validacion de la fk, creo que solo se usa esa porque de ahi vienen userID y packageID
+
+
+                //si no existe reservacion, no existe factura
+                var reservation = await this.dbContext.Reservations.FirstOrDefaultAsync(r => r.ID == invoice.ReservationId);
+                if (reservation == null)
+                    return "Error, la reservacion no existe";
+
+
+                this.dbContext.Invoices.Add(invoice);
+
+                await this.dbContext.SaveChangesAsync();
+
+                msj = $"La factura {invoice.InvoiceNumber} se registro correctamente";
 
             }
             catch (Exception ex)
