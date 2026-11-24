@@ -40,7 +40,7 @@ namespace BeachSAAPI.Controllers
         [Route("Create")]
         [Authorize(Roles = "Admin")]
 
-        public async Task<string> Create(Package package)
+        public async Task<IActionResult> Create(Package package)
         {
             string msj = "";
 
@@ -48,7 +48,7 @@ namespace BeachSAAPI.Controllers
             {
                 if(package == null)
                 {
-                    return "Error, no se permiten datos en blanco ";
+                    return this.Respond("Error, no se permiten datos en blanco ");
                 }
                 else
                 {
@@ -74,12 +74,16 @@ namespace BeachSAAPI.Controllers
                     }
                     else
                     {
-                        return "Error, el tipo de paquete no es válido";
+                        return this.Respond("Error, el tipo de paquete no es válido");
                     }
 
                     this.dbContext.Packages.Add(package);
                     
-                    await this.dbContext.SaveChangesAsync();
+                    using (var transaction = await this.dbContext.Database.BeginTransactionAsync())
+                    {
+                        await this.dbContext.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                    }
 
                     msj = $"El paquete {package.PackageType} se ha guardado correctamente";
                 }
@@ -87,10 +91,10 @@ namespace BeachSAAPI.Controllers
             }
             catch (Exception ex)
             {
-                msj = $"Error, {ex.InnerException.ToString()}";
+                msj = $"Error, {ex.InnerException?.Message ?? ex.Message}";
             }
 
-            return msj;
+            return this.Respond(msj);
         }
 
 
@@ -99,7 +103,7 @@ namespace BeachSAAPI.Controllers
         [Route("Update")]
         [Authorize(Roles = "Admin")]
 
-        public async Task<string> Update(Package aux)
+        public async Task<IActionResult> Update(Package aux)
         {
             string msj = "";
 
@@ -132,7 +136,11 @@ namespace BeachSAAPI.Controllers
                             temp.RemainingMonthlyInstallments = 12;
                         }
 
+                        using (var transaction = await this.dbContext.Database.BeginTransactionAsync())
+                    {
                         await this.dbContext.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                    }
 
                         msj = $"El paquete {temp.PackageType} se ha actualizado correctamente";
                     }
@@ -149,10 +157,10 @@ namespace BeachSAAPI.Controllers
             }
             catch (Exception ex)
             {
-                msj = $"Error, {ex.InnerException.ToString()}";
+                msj = $"Error, {ex.InnerException?.Message ?? ex.Message}";
             }
 
-            return msj;
+            return this.Respond(msj);
         }
 
 
@@ -161,7 +169,7 @@ namespace BeachSAAPI.Controllers
         [Route("Delete")]
         [Authorize(Roles = "Admin")]
 
-        public async Task<string> Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             string msj = "";
 
@@ -179,7 +187,11 @@ namespace BeachSAAPI.Controllers
                     {
                         this.dbContext.Packages.Remove(aux);
                         
+                        using (var transaction = await this.dbContext.Database.BeginTransactionAsync())
+                    {
                         await this.dbContext.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                    }
                         
                         msj = $"El paquete {aux.PackageType} se eliminó correctamente";
                     }
@@ -191,10 +203,10 @@ namespace BeachSAAPI.Controllers
             }
             catch (Exception ex)
             {
-                msj = $"Error, {ex.InnerException.ToString()}";
+                msj = $"Error, {ex.InnerException?.Message ?? ex.Message}";
             }
 
-            return msj;
+            return this.Respond(msj);
 
         }
 
@@ -219,5 +231,17 @@ namespace BeachSAAPI.Controllers
 
 
 
-    }
+    
+
+
+        private IActionResult Respond(string msj)
+        {
+            if (msj.StartsWith("Error") || msj.StartsWith("Debe"))
+            {
+                return BadRequest(msj);
+            }
+
+            return Ok(msj);
+        }
+}
 }

@@ -16,12 +16,16 @@ namespace BeachSAAPI.Controllers
         private DbContextBeachSA dbContext = null;
 
         private readonly IAuthorizationServices authorizationServices = null;
+        private readonly IInvoicePdfService invoicePdfService;
+        private readonly IEmailService emailService;
 
-        public InvoicesController(DbContextBeachSA _context, IAuthorizationServices iServices)
+        public InvoicesController(DbContextBeachSA _context, IAuthorizationServices iServices, IInvoicePdfService iPdfService, IEmailService iEmailService)
         {
             this.dbContext = _context;
 
             this.authorizationServices = iServices;
+            this.invoicePdfService = iPdfService;
+            this.emailService = iEmailService;
         }
 
 
@@ -31,7 +35,7 @@ namespace BeachSAAPI.Controllers
         //List
         [HttpGet]
         [Route("List")]
-        //[Authorize]
+        [Authorize]
 
         public List<Invoice> List()
         {
@@ -42,9 +46,9 @@ namespace BeachSAAPI.Controllers
         //Post
         [HttpPost]
         [Route("Create")]
-        //[Authorize]
+        [Authorize]
 
-        public async Task<string> Create(Invoice invoice)
+        public async Task<IActionResult> Create(Invoice invoice)
         {
             string msj = "";
 
@@ -52,22 +56,22 @@ namespace BeachSAAPI.Controllers
             {
                 //validaciones
                 if (invoice == null)
-                    return "Error, no se permiten datos en blanco";
+                    return this.Respond("Error, no se permiten datos en blanco");
 
                 //defaulttime = 01/01/0001 00:00:00
                 if (invoice.InvoiceDate == default(DateTime))
-                    return "Error, indicar la fecha de la factura";
+                    return this.Respond("Error, indicar la fecha de la factura");
 
                 //la fecha de la factura no puede ser de manana 
                 if (invoice.InvoiceDate.Date > DateTime.Today)
-                    return "Error, la fecha de la factura no puede ser posterior a hoy";
+                    return this.Respond("Error, la fecha de la factura no puede ser posterior a hoy");
 
                 //negativos
                 if (invoice.totalUsd <= 0)
-                    return "Error, el total en dolares debe ser mayor a 0";
+                    return this.Respond("Error, el total en dolares debe ser mayor a 0");
 
                 if (invoice.totalColones <= 0)
-                    return "Error, el total en colones debe ser mayor a 0";
+                    return this.Respond("Error, el total en colones debe ser mayor a 0");
 
 
 
@@ -77,7 +81,7 @@ namespace BeachSAAPI.Controllers
                 //si no existe reservacion, no existe factura
                 var reservation = await this.dbContext.Reservations.FirstOrDefaultAsync(r => r.ID == invoice.ReservationId);
                 if (reservation == null)
-                    return "Error, la reservacion no existe";
+                    return this.Respond("Error, la reservacion no existe");
 
 
                 this.dbContext.Invoices.Add(invoice);
@@ -89,19 +93,19 @@ namespace BeachSAAPI.Controllers
             }
             catch (Exception ex)
             {
-                msj = $"Error, {ex.InnerException.ToString()}";
+                msj = $"Error, {ex.InnerException?.Message ?? ex.Message}";
             }
 
-            return msj;
+            return this.Respond(msj);
         }
 
 
         //Edit
         [HttpPut]
         [Route("Update")]
-        //[Authorize]
+        [Authorize]
 
-        public async Task<string> Update(Invoice aux)
+        public async Task<IActionResult> Update(Invoice aux)
         {
             string msj = "";
 
@@ -112,19 +116,19 @@ namespace BeachSAAPI.Controllers
             }
             catch (Exception ex)
             {
-                msj = $"Error, {ex.InnerException.ToString()}";
+                msj = $"Error, {ex.InnerException?.Message ?? ex.Message}";
             }
 
-            return msj;
+            return this.Respond(msj);
         }
 
 
         //Delete
         [HttpDelete]
         [Route("Delete")]
-        //[Authorize]
+        [Authorize]
 
-        public async Task<string> Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             string msj = "";
 
@@ -154,10 +158,10 @@ namespace BeachSAAPI.Controllers
             }
             catch (Exception ex)
             {
-                msj = $"Error, {ex.InnerException.ToString()}";
+                msj = $"Error, {ex.InnerException?.Message ?? ex.Message}";
             }
 
-            return msj;
+            return this.Respond(msj);
 
         }
 
@@ -165,7 +169,7 @@ namespace BeachSAAPI.Controllers
         //Search
         [HttpGet]
         [Route("SearchById")]
-       // [Authorize]
+        [Authorize]
         public async Task<Invoice> SearchById(int id)
         {
             return await this.dbContext.Invoices.FirstOrDefaultAsync(x => x.ID == id);
@@ -267,5 +271,82 @@ namespace BeachSAAPI.Controllers
 
 
         //end
-    }
+    
+
+
+        [HttpGet]
+        [Route("Pdf")]
+        [Authorize]
+        public async Task<IActionResult> Pdf(int reservationId)
+        {
+            var data = await this.LoadInvoiceData(reservationId);
+
+            if (data == null)
+            {
+                return NotFound("No existe una factura para esta reservacion");
+            }
+
+            byte[] pdf = this.invoicePdfService.Generate(data.Value.invoice, data.Value.reservation, data.Value.user, data.Value.package);
+
+            return File(pdf, "application/pdf", $"Factura-{data.Value.invoice.InvoiceNumber:D6}.pdf");
+        }
+
+
+        [HttpPost]
+        [Route("SendEmail")]
+        [Authorize]
+        public async Task<IActionResult> SendEmail(int reservationId)
+        {
+            var data = await this.LoadInvoiceData(reservationId);
+
+            if (data == null)
+            {
+                return NotFound("No existe una factura para esta reservacion");
+            }
+
+            byte[] pdf = this.invoicePdfService.Generate(data.Value.invoice, data.Value.reservation, data.Value.user, data.Value.package);
+
+            bool sent = await this.emailService.SendInvoiceAsync(data.Value.user.Email, data.Value.user.FullName, data.Value.invoice.InvoiceNumber, pdf);
+
+            if (!sent)
+            {
+                return StatusCode(500, "No se pudo enviar la factura por correo");
+            }
+
+            return Ok($"Factura enviada a {data.Value.user.Email}");
+        }
+
+
+        private async Task<(Invoice invoice, Reservation reservation, User user, Package package)?> LoadInvoiceData(int reservationId)
+        {
+            var invoice = await this.dbContext.Invoices.FirstOrDefaultAsync(x => x.ReservationId == reservationId);
+            if (invoice == null)
+            {
+                return null;
+            }
+
+            var reservation = await this.dbContext.Reservations.FirstOrDefaultAsync(x => x.ID == invoice.ReservationId);
+            var user = await this.dbContext.Users.FirstOrDefaultAsync(x => x.ID == invoice.UserId);
+            var package = await this.dbContext.Packages.FirstOrDefaultAsync(x => x.ID == invoice.PackageId);
+
+            if (reservation == null || user == null || package == null)
+            {
+                return null;
+            }
+
+            return (invoice, reservation, user, package);
+        }
+    
+
+
+        private IActionResult Respond(string msj)
+        {
+            if (msj.StartsWith("Error") || msj.StartsWith("Debe"))
+            {
+                return BadRequest(msj);
+            }
+
+            return Ok(msj);
+        }
+}
 }

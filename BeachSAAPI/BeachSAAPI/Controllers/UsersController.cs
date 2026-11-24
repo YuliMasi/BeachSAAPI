@@ -69,7 +69,7 @@ namespace BeachSAAPI.Controllers
         [Authorize(Roles = "Admin")]
         [HttpPut]
         [Route("Create")]
-        public async Task<string> Create(User temp)
+        public async Task<IActionResult> Create(User temp)
         {
             string msj = "";
             try
@@ -80,16 +80,21 @@ namespace BeachSAAPI.Controllers
                 }
                 else
                 {
+                    temp.Password = PasswordHasher.Hash(temp.Password);
                     this.dbContext.Users.Add(temp);
-                    await this.dbContext.SaveChangesAsync();
+                    using (var transaction = await this.dbContext.Database.BeginTransactionAsync())
+                    {
+                        await this.dbContext.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                    }
                     msj = $"Usuario {temp.FullName} almacenado correctamente ";
                 }
             }
             catch (Exception ex)
             {
-                msj = $"Error,{ex.InnerException}";
+                msj = $"Error, {ex.InnerException?.Message ?? ex.Message}";
             }
-            return msj;
+            return this.Respond(msj);
         }
 
         [AllowAnonymous]
@@ -110,6 +115,7 @@ namespace BeachSAAPI.Controllers
 
             temp.ID = 0;
             temp.Role = "Customer";
+            temp.Password = PasswordHasher.Hash(temp.Password);
 
             try
             {
@@ -126,7 +132,7 @@ namespace BeachSAAPI.Controllers
         [HttpPost]
         [Authorize]
         [Route("Update")]
-        public async Task<string> Update(User temp)
+        public async Task<IActionResult> Update(User temp)
         {
             string msj = "";
             try
@@ -149,11 +155,18 @@ namespace BeachSAAPI.Controllers
                         aux.PhoneNumber = temp.PhoneNumber;
                         aux.Address = temp.Address;
                         aux.Email = temp.Email;
-                        aux.Password = temp.Password;
+                        if (!string.IsNullOrEmpty(temp.Password))
+                        {
+                            aux.Password = PasswordHasher.IsHash(temp.Password) ? temp.Password : PasswordHasher.Hash(temp.Password);
+                        }
                         aux.Role = temp.Role;
 
                         this.dbContext.Users.Update(aux);
+                        using (var transaction = await this.dbContext.Database.BeginTransactionAsync())
+                    {
                         await this.dbContext.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                    }
                         msj = $"Cambios aplicados a {aux.Email} correctamente..";
                     }
 
@@ -161,15 +174,15 @@ namespace BeachSAAPI.Controllers
             }
             catch (Exception ex)
             {
-                msj = $"Error,{ex.InnerException}";
+                msj = $"Error, {ex.InnerException?.Message ?? ex.Message}";
             }
-            return msj;
+            return this.Respond(msj);
         }
 
         [HttpDelete]
         [Authorize(Roles = "Admin")]
         [Route("Delete")]
-        public async Task<string> Delete(string email)
+        public async Task<IActionResult> Delete(string email)
         {
             string msj = "";
             try
@@ -195,7 +208,11 @@ namespace BeachSAAPI.Controllers
                         else
                         {
                             this.dbContext.Users.Remove(aux);
-                            await this.dbContext.SaveChangesAsync();
+                            using (var transaction = await this.dbContext.Database.BeginTransactionAsync())
+                    {
+                        await this.dbContext.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                    }
                             msj = $"Usuario {aux.FullName} eliminado correctamente";
                         }
                     }
@@ -203,10 +220,10 @@ namespace BeachSAAPI.Controllers
             }
             catch (Exception ex)
             {
-                msj = $"Error,{ex.InnerException}";
+                msj = $"Error, {ex.InnerException?.Message ?? ex.Message}";
             }
 
-            return msj;
+            return this.Respond(msj);
         }
 
         [Authorize]
@@ -249,5 +266,17 @@ namespace BeachSAAPI.Controllers
                 return StatusCode(502, $"Error consultando Gometa: {ex.Message}");
             }
         }
-    }
+    
+
+
+        private IActionResult Respond(string msj)
+        {
+            if (msj.StartsWith("Error") || msj.StartsWith("Debe"))
+            {
+                return BadRequest(msj);
+            }
+
+            return Ok(msj);
+        }
+}
 }

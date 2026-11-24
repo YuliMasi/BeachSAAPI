@@ -20,8 +20,18 @@ namespace BeachSAAPI.Services
 
         public AuthorizationResponse DevolverToken(User authorization)
         {
-            User temp = this.dbContext.Users.FirstOrDefault(x =>
-            x.Email.Equals(authorization.Email) && x.Password.Equals(authorization.Password));
+            User temp = this.dbContext.Users.FirstOrDefault(x => x.Email.Equals(authorization.Email));
+
+            if (temp != null && !PasswordHasher.Verify(authorization.Password, temp.Password))
+            {
+                temp = null;
+            }
+
+            if (temp != null && !PasswordHasher.IsHash(temp.Password))
+            {
+                temp.Password = PasswordHasher.Hash(authorization.Password);
+                this.dbContext.SaveChanges();
+            }
 
             string token = "";
 

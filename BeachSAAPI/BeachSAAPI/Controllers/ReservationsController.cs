@@ -4,6 +4,7 @@ using BeachSAAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 
 
@@ -17,11 +18,15 @@ namespace BeachSAAPI.Controllers
         private readonly DbContextBeachSA dbContext = null;
         private readonly IAuthorizationServices authorizationServices = null;
         private readonly IGometaService gometaService;
-        public ReservationsController(DbContextBeachSA _context, IAuthorizationServices rServices, IGometaService _gometaService)
+        private readonly IInvoicePdfService invoicePdfService;
+        private readonly IEmailService emailService;
+        public ReservationsController(DbContextBeachSA _context, IAuthorizationServices rServices, IGometaService _gometaService, IInvoicePdfService _invoicePdfService, IEmailService _emailService)
         {
             this.dbContext = _context;
             this.authorizationServices = rServices;
             this.gometaService = _gometaService;
+            this.invoicePdfService = _invoicePdfService;
+            this.emailService = _emailService;
         }
 
 
@@ -30,9 +35,17 @@ namespace BeachSAAPI.Controllers
         [Authorize]
         [HttpGet]
         [Route("List")]
-        public List<Reservation> List()
+        public async Task<List<Reservation>> List()
         {
-            return this.dbContext.Reservations.ToList();
+            if (this.IsAdmin())
+            {
+                return await this.dbContext.Reservations.ToListAsync();
+            }
+
+            User current = await this.CurrentUser();
+            int userId = current?.ID ?? 0;
+
+            return await this.dbContext.Reservations.Where(r => r.UserId == userId).ToListAsync();
         }
 
 
@@ -40,7 +53,7 @@ namespace BeachSAAPI.Controllers
         [Authorize]
         [HttpPost]
         [Route("Create")] 
-        public async Task<object> Create(Reservation reservation)
+        public async Task<IActionResult> Create(Reservation reservation)
         {
             string msj = "";
 
@@ -49,14 +62,14 @@ namespace BeachSAAPI.Controllers
 
                 //validaciones
                 if (reservation == null)
-                    return "Error, no se permiten datos en blanco";
+                    return this.Respond("Error, no se permiten datos en blanco");
 
                 if (reservation.GuestQuantity <= 0)
-                    return "Error, la cantidad de huespedes debe ser mayor a 0";
+                    return this.Respond("Error, la cantidad de huespedes debe ser mayor a 0");
 
                 //DateTime.Today es de la clase DateTime, regresa la fecha de hoy, sin hora, solo fecha
                 if (reservation.CheckInDate.Date < DateTime.Today)
-                    return "Error, la fecha de entrada no puede ser antes de hoy";
+                    return this.Respond("Error, la fecha de entrada no puede ser antes de hoy");
 
 
                 //noches, pasar los dias a la variable noches
@@ -64,7 +77,7 @@ namespace BeachSAAPI.Controllers
 
                 //noches positivas nada mas: con esto siempre se calcula salida posterior a entrada
                 if (reservation.AccommodationDays <= 0)
-                    return "Error, la cantidad de noches debe ser mayor a 0";
+                    return this.Respond("Error, la cantidad de noches debe ser mayor a 0");
 
 
                 //calcular el dia de salida a partir de los dias que indica el cliente: AddDays() es un metodo de la clase DateTime, que suma dias a una fecha
@@ -77,7 +90,7 @@ namespace BeachSAAPI.Controllers
                
                 //forma de pago escrita? si no:
                 if (string.IsNullOrWhiteSpace(reservation.PaymentMethod))
-                    return "Error, indicar la forma de pago";
+                    return this.Respond("Error, indicar la forma de pago");
 
                 //variable para la forma de pago en minusculas o mayusculas
                 string pago = reservation.PaymentMethod.ToLower();
@@ -94,10 +107,10 @@ namespace BeachSAAPI.Controllers
                 else if (pago == "cheque")
                 {
                     if (string.IsNullOrWhiteSpace(reservation.CheckNumber))
-                        return "Error, con cheque debe indicar el numero de cheque";
+                        return this.Respond("Error, con cheque debe indicar el numero de cheque");
 
                     if (string.IsNullOrWhiteSpace(reservation.Bank))
-                        return "Error, con cheque debe indicar el banco";
+                        return this.Respond("Error, con cheque debe indicar el banco");
                 }
                 else if (pago == "tarjeta")
                 {
@@ -105,7 +118,7 @@ namespace BeachSAAPI.Controllers
                 }
                 else
                 {
-                    return "Error, la forma de pago debe ser Efectivo, Cheque o Tarjeta";
+                    return this.Respond("Error, la forma de pago debe ser Efectivo, Cheque o Tarjeta");
                 }
 
 
@@ -122,12 +135,16 @@ namespace BeachSAAPI.Controllers
                 //validacion paquete 
                 var package = await this.dbContext.Packages.FirstOrDefaultAsync(p => p.ID == reservation.PackageId);
                 if (package == null)
-                    return "Error, el paquete no existe";
+                    return this.Respond("Error, el paquete no existe");
 
                 //validacion usuario
-                 var user = await this.dbContext.Users.FirstOrDefaultAsync(u => u.ID == reservation.UserId);
+                var user = await this.CurrentUser();
+                if (this.IsAdmin() && reservation.UserId > 0)
+                    user = await this.dbContext.Users.FirstOrDefaultAsync(u => u.ID == reservation.UserId);
                 if (user == null)
-                    return "Error, el usuario no existe";
+                    return this.Respond("Error, el usuario no existe");
+
+                reservation.UserId = user.ID;
 
 
                 //calculos renales matematicos
@@ -162,7 +179,7 @@ namespace BeachSAAPI.Controllers
 
                 //validacion de gometa, si no se puede obtener el tipo de cambio, se devuelve un error
                 if (tipoCambio == null)
-                    return "Error, no se pudo obtener el tipo de cambio";
+                    return this.Respond("Error, no se pudo obtener el tipo de cambio");
 
 
 
@@ -217,9 +234,21 @@ namespace BeachSAAPI.Controllers
                 // Confirmar la transaccion
                 await transaction.CommitAsync();
 
-
-                return new
+                bool emailSent = false;
+                try
                 {
+                    byte[] pdf = this.invoicePdfService.Generate(invoice, reservation, user, package);
+                    emailSent = await this.emailService.SendInvoiceAsync(user.Email, user.FullName, invoice.InvoiceNumber, pdf);
+                }
+                catch (Exception)
+                {
+                    emailSent = false;
+                }
+
+
+                return Ok(new
+                {
+                    emailSent = emailSent,
                     invoiceNumber = invoice.InvoiceNumber,
                     invoiceDate = invoice.InvoiceDate,
 
@@ -256,16 +285,16 @@ namespace BeachSAAPI.Controllers
                         totalUsd = totalUsd,
                         totalColones = totalColones
                     }
-                };
+                });
 
 
             }
             catch (Exception ex)
             {
 
-                msj = $"Error,{ex.InnerException.ToString()}";
+                msj = $"Error,{ex.InnerException?.Message ?? ex.Message}";
             }
-            return msj;
+            return this.Respond(msj);
         }
 
 
@@ -276,7 +305,7 @@ namespace BeachSAAPI.Controllers
         [Authorize]
             [HttpPut]
             [Route("Update")]
-            public async Task<string> Edit(Reservation aux)
+            public async Task<IActionResult> Edit(Reservation aux)
             {
                 string msj = "";
                 try
@@ -285,18 +314,20 @@ namespace BeachSAAPI.Controllers
                 //validaciones
 
                 if (aux == null)
-                    return "Error, no se permiten datos en blanco";
+                    return this.Respond("Error, no se permiten datos en blanco");
                 
                 //consulta reservacion existente
                 Reservation temp = await this.dbContext.Reservations.FirstOrDefaultAsync(r => r.ID == aux.ID);
                 if (temp == null)
-                    return $"Error, no existe ninguna reservacion con el ID {aux.ID}";
+                    return this.Respond($"Error, no existe ninguna reservacion con el ID {aux.ID}");
+                if (!await this.CanAccess(temp))
+                    return this.Respond("Error, no tiene permiso sobre esta reservacion");
                 //cuanto huespedes
                 if (aux.GuestQuantity <= 0)
-                    return "Error, la cantidad de huespedes debe ser mayor a 0";
+                    return this.Respond("Error, la cantidad de huespedes debe ser mayor a 0");
                 //cambio de fecha? actualziar
                 if (aux.CheckInDate.Date != temp.CheckInDate.Date && aux.CheckInDate.Date < DateTime.Today)
-                    return "Error, la fecha de entrada no puede ser antes de hoy";
+                    return this.Respond("Error, la fecha de entrada no puede ser antes de hoy");
                 
               
 
@@ -305,13 +336,13 @@ namespace BeachSAAPI.Controllers
 
                 //mas de 1 noche
                 if (nights <= 0)
-                    return "Error, la cantidad de noches debe ser mayor a 0";
+                    return this.Respond("Error, la cantidad de noches debe ser mayor a 0");
 
              
                
                 // tipo de pago valido? si no :         
                 if (string.IsNullOrWhiteSpace(aux.PaymentMethod))
-                    return "Error, indicar la forma de pago";
+                    return this.Respond("Error, indicar la forma de pago");
                 
                 //pago en minusculas o mayusculas 
                 string pago = aux.PaymentMethod.Trim().ToLower();
@@ -321,14 +352,14 @@ namespace BeachSAAPI.Controllers
                 if (pago == "cheque")
                 {
                     if (string.IsNullOrWhiteSpace(aux.CheckNumber))
-                        return "Error, con cheque debe indicar el numero de cheque";
+                        return this.Respond("Error, con cheque debe indicar el numero de cheque");
 
                     if (string.IsNullOrWhiteSpace(aux.Bank))
-                        return "Error, con cheque debe indicar el banco";
+                        return this.Respond("Error, con cheque debe indicar el banco");
                 }
                 else if (pago != "efectivo" && pago != "tarjeta")
                 {
-                    return "Error, la forma de pago debe ser Efectivo, Cheque o Tarjeta";
+                    return this.Respond("Error, la forma de pago debe ser Efectivo, Cheque o Tarjeta");
                 }
 
                 //buscar el paquete  para recalcular
@@ -353,7 +384,7 @@ namespace BeachSAAPI.Controllers
 
                 double? tipoCambio = await gometaService.ObtenerTipoCambioAsync();
                 if (tipoCambio == null)
-                    return "Error, no se pudo obtener el tipo de cambio";
+                    return this.Respond("Error, no se pudo obtener el tipo de cambio");
 
                 double totalColones = totalUsd * tipoCambio.Value;
 
@@ -380,16 +411,20 @@ namespace BeachSAAPI.Controllers
 
 
                 this.dbContext.Reservations.Update(temp);
-                            await this.dbContext.SaveChangesAsync();
+                using (var transaction = await this.dbContext.Database.BeginTransactionAsync())
+                {
+                    await this.dbContext.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                }
 
                            msj = $"Reservacion del {temp.CheckInDate} modificada correctamente/" +
                            $"Total en colones: {totalColones} y total en dolares: {totalUsd}";
                              }
                                  catch (Exception ex)
                              {
-                             msj = $"Error,{ex.InnerException.ToString()}";
+                             msj = $"Error,{ex.InnerException?.Message ?? ex.Message}";
             }
-                                 return msj;
+                                 return this.Respond(msj);
                               }
 
 
@@ -397,17 +432,27 @@ namespace BeachSAAPI.Controllers
         [Authorize]
         [HttpDelete]
             [Route("Delete")]
-            public async Task<string> Delete(int id)
+            public async Task<IActionResult> Delete(int id)
             {
                 string msj = "";
                 try
                 {
                     Reservation aux = await this.dbContext.Reservations.FirstOrDefaultAsync(x => x.ID == id);
 
-                    if (aux != null)
+                    if (aux != null && !await this.CanAccess(aux))
                     {
+                        msj = "Error, no tiene permiso sobre esta reservacion";
+                    }
+                    else if (aux != null)
+                    {
+                        var invoices = this.dbContext.Invoices.Where(x => x.ReservationId == aux.ID);
+                        this.dbContext.Invoices.RemoveRange(invoices);
                         this.dbContext.Reservations.Remove(aux);
-                        await this.dbContext.SaveChangesAsync();
+                        using (var transaction = await this.dbContext.Database.BeginTransactionAsync())
+                        {
+                            await this.dbContext.SaveChangesAsync();
+                            await transaction.CommitAsync();
+                        }
 
                         msj = $"Reservacion del dia {aux.CheckInDate} eliminada correctamente";
                     }
@@ -418,9 +463,9 @@ namespace BeachSAAPI.Controllers
                 }
                 catch (Exception ex)
                 {
-                    msj = $"Error,{ex.InnerException.ToString()}";
+                    msj = $"Error,{ex.InnerException?.Message ?? ex.Message}";
                 }
-                return msj;
+                return this.Respond(msj);
             }
 
 
@@ -430,7 +475,14 @@ namespace BeachSAAPI.Controllers
             [Route("Search")]
             public async Task<Reservation> Search(int id)
             {
-                return await this.dbContext.Reservations.FirstOrDefaultAsync(x => x.ID == id);
+                Reservation temp = await this.dbContext.Reservations.FirstOrDefaultAsync(x => x.ID == id);
+
+                if (temp != null && !await this.CanAccess(temp))
+                {
+                    return null;
+                }
+
+                return temp;
             }
 
 
@@ -442,11 +494,53 @@ namespace BeachSAAPI.Controllers
         [Authorize]
         public async Task<List<Reservation>> SearchDescrip(string value)
         {
-            return await this.dbContext.Reservations.Where(x => x.PaymentMethod.Contains(value)).ToListAsync();
+            var query = this.dbContext.Reservations.Where(x => x.PaymentMethod.Contains(value));
+
+            if (!this.IsAdmin())
+            {
+                User current = await this.CurrentUser();
+                int userId = current?.ID ?? 0;
+                query = query.Where(x => x.UserId == userId);
+            }
+
+            return await query.ToListAsync();
         }
 
 
         //end
+    
+
+
+        private bool IsAdmin()
+        {
+            return User.IsInRole("Admin");
+        }
+
+        private async Task<User> CurrentUser()
+        {
+            string email = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return await this.dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
+        }
+
+        private async Task<bool> CanAccess(Reservation reservation)
+        {
+            if (this.IsAdmin())
+            {
+                return true;
+            }
+
+            User current = await this.CurrentUser();
+            return current != null && reservation.UserId == current.ID;
+        }
+
+        private IActionResult Respond(string msj)
+        {
+            if (msj.StartsWith("Error") || msj.StartsWith("Debe"))
+            {
+                return BadRequest(msj);
+            }
+
+            return Ok(msj);
+        }
+}
     }
-    }
-   

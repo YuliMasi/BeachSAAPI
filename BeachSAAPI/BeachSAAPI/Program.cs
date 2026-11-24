@@ -25,6 +25,10 @@ builder.Services.AddHttpClient<IGometaService, GometaService>(client =>
 });
 
 builder.Services.AddScoped<IAuthorizationServices, AuthorizationServices>();
+builder.Services.AddScoped<IInvoicePdfService, InvoicePdfService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
 
 var key = builder.Configuration.GetValue<string>("JwtSettings:Key");
