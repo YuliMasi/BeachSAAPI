@@ -3,6 +3,8 @@ using BeachSAAPI.Models;
 using BeachSAAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace BeachSAAPI.Controllers
 {
@@ -20,12 +22,32 @@ namespace BeachSAAPI.Controllers
             this.gometaService = pGometaService;
         }
 
-        //[Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         [Route("List")]
         public List<User> List()
         {
-            return this.dbContext.Users.ToList();
+            List<User> users = this.dbContext.Users.AsNoTracking().ToList();
+            users.ForEach(u => u.Password = null);
+            return users;
+        }
+
+        [Authorize]
+        [HttpGet]
+        [Route("Profile")]
+        public IActionResult Profile()
+        {
+            string email = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            User temp = this.dbContext.Users.AsNoTracking().FirstOrDefault(u => u.Email == email);
+
+            if (temp == null)
+            {
+                return NotFound("Usuario no encontrado");
+            }
+
+            temp.Password = null;
+            return Ok(temp);
         }
 
         [HttpPost]
@@ -44,10 +66,10 @@ namespace BeachSAAPI.Controllers
             }
         }
 
-        [Authorize] 
+        [Authorize(Roles = "Admin")]
         [HttpPut]
         [Route("Create")]
-        public async Task<string> Create(User temp)
+        public async Task<IActionResult> Create(User temp)
         {
             string msj = "";
             try
@@ -58,22 +80,59 @@ namespace BeachSAAPI.Controllers
                 }
                 else
                 {
+                    temp.Password = PasswordHasher.Hash(temp.Password);
                     this.dbContext.Users.Add(temp);
-                    await this.dbContext.SaveChangesAsync();
+                    using (var transaction = await this.dbContext.Database.BeginTransactionAsync())
+                    {
+                        await this.dbContext.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                    }
                     msj = $"Usuario {temp.FullName} almacenado correctamente ";
                 }
             }
             catch (Exception ex)
             {
-                msj = $"Error,{ex.InnerException}";
+                msj = $"Error, {ex.InnerException?.Message ?? ex.Message}";
             }
-            return msj;
+            return this.Respond(msj);
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("Register")]
+        public async Task<IActionResult> Register(User temp)
+        {
+            if (temp == null || string.IsNullOrEmpty(temp.Email) || string.IsNullOrEmpty(temp.Password))
+            {
+                return BadRequest("No se permiten datos vacíos");
+            }
+
+            bool exists = this.dbContext.Users.Any(u => u.Email == temp.Email);
+            if (exists)
+            {
+                return BadRequest("Ya existe una cuenta con ese correo");
+            }
+
+            temp.ID = 0;
+            temp.Role = "Customer";
+            temp.Password = PasswordHasher.Hash(temp.Password);
+
+            try
+            {
+                this.dbContext.Users.Add(temp);
+                await this.dbContext.SaveChangesAsync();
+                return Ok($"Usuario {temp.FullName} registrado correctamente");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error, {ex.InnerException?.Message ?? ex.Message}");
+            }
         }
 
         [HttpPost]
         [Authorize]
         [Route("Update")]
-        public async Task<string> Update(User temp)
+        public async Task<IActionResult> Update(User temp)
         {
             string msj = "";
             try
@@ -96,11 +155,18 @@ namespace BeachSAAPI.Controllers
                         aux.PhoneNumber = temp.PhoneNumber;
                         aux.Address = temp.Address;
                         aux.Email = temp.Email;
-                        aux.Password = temp.Password;
+                        if (!string.IsNullOrEmpty(temp.Password))
+                        {
+                            aux.Password = PasswordHasher.IsHash(temp.Password) ? temp.Password : PasswordHasher.Hash(temp.Password);
+                        }
                         aux.Role = temp.Role;
 
                         this.dbContext.Users.Update(aux);
+                        using (var transaction = await this.dbContext.Database.BeginTransactionAsync())
+                    {
                         await this.dbContext.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                    }
                         msj = $"Cambios aplicados a {aux.Email} correctamente..";
                     }
 
@@ -108,15 +174,15 @@ namespace BeachSAAPI.Controllers
             }
             catch (Exception ex)
             {
-                msj = $"Error,{ex.InnerException}";
+                msj = $"Error, {ex.InnerException?.Message ?? ex.Message}";
             }
-            return msj;
+            return this.Respond(msj);
         }
 
         [HttpDelete]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [Route("Delete")]
-        public async Task<string> Delete(string email)
+        public async Task<IActionResult> Delete(string email)
         {
             string msj = "";
             try
@@ -142,7 +208,11 @@ namespace BeachSAAPI.Controllers
                         else
                         {
                             this.dbContext.Users.Remove(aux);
-                            await this.dbContext.SaveChangesAsync();
+                            using (var transaction = await this.dbContext.Database.BeginTransactionAsync())
+                    {
+                        await this.dbContext.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                    }
                             msj = $"Usuario {aux.FullName} eliminado correctamente";
                         }
                     }
@@ -150,10 +220,10 @@ namespace BeachSAAPI.Controllers
             }
             catch (Exception ex)
             {
-                msj = $"Error,{ex.InnerException}";
+                msj = $"Error, {ex.InnerException?.Message ?? ex.Message}";
             }
 
-            return msj;
+            return this.Respond(msj);
         }
 
         [Authorize]
@@ -196,5 +266,17 @@ namespace BeachSAAPI.Controllers
                 return StatusCode(502, $"Error consultando Gometa: {ex.Message}");
             }
         }
-    }
+    
+
+
+        private IActionResult Respond(string msj)
+        {
+            if (msj.StartsWith("Error") || msj.StartsWith("Debe"))
+            {
+                return BadRequest(msj);
+            }
+
+            return Ok(msj);
+        }
+}
 }
